@@ -4,7 +4,7 @@ export interface Message {
   role: 'user' | 'assistant';
 }
 
-const WEBHOOK_URL = 'https://jordanb.app.n8n.cloud/webhook/a3624d40-af2a-40cd-8a8b-7e12054a16d1';
+const WEBHOOK_URL = 'https://jordanb.app.n8n.cloud/webhook-test/message-from-user';
 
 // Simple in-memory storage for messages by session
 // In production, this would be a database or Redis
