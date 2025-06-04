@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { addMessagesToStore } from '@/lib/fetchMessages';
 
 export interface IncomingMessage {
   session_id: string;
@@ -45,8 +46,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Store the messages in our message store
+    addMessagesToStore(body.session_id, body.messages);
+
     // Log the received messages for debugging
-    console.log('Received messages from n8n:', {
+    console.log('Received and stored messages from n8n:', {
       session_id: body.session_id,
       message_count: body.messages.length,
       messages: body.messages.map(msg => ({
@@ -57,22 +61,11 @@ export async function POST(request: NextRequest) {
       timestamp: body.timestamp || new Date().toISOString()
     });
 
-    // Here you could:
-    // 1. Store messages in a database
-    // 2. Send to a message queue
-    // 3. Trigger webhooks to other services
-    // 4. Update a cache/session store
-    // 5. Broadcast to connected clients via WebSockets/SSE
-    
-    // For now, we'll just acknowledge receipt
-    // In a real implementation, you might want to store these in a database
-    // and have the frontend poll this endpoint or use WebSockets/SSE
-
     // Return success response
     return NextResponse.json(
       { 
         success: true,
-        message: 'Messages received successfully',
+        message: 'Messages received and stored successfully',
         session_id: body.session_id,
         messages_processed: body.messages.length,
         received_at: new Date().toISOString()
