@@ -31,7 +31,7 @@ A beautiful, fantasy-themed Next.js frontend for a Magic: The Gathering AI chatb
    ```
 
 3. Configure your n8n webhook URL:
-   - The webhook URL is configured for production: `https://jordanb.app.n8n.cloud/webhook/a3624d40-af2a-40cd-8a8b-7e12054a16d1`
+   - The webhook URL is configured for production: `https://jordanb.app.n8n.cloud/webhook/message-from-user`
    - To use your own webhook, update the `WEBHOOK_URL` in `src/lib/fetchMessages.ts`
 
 4. Start the development server:
@@ -48,7 +48,7 @@ The app is deployed and running at: **[mtg-llm-frontend.vercel.app](https://mtg-
 ### Production Configuration
 
 - **Frontend URL**: `https://mtg-llm-frontend.vercel.app`
-- **n8n Webhook**: `https://jordanb.app.n8n.cloud/webhook/a3624d40-af2a-40cd-8a8b-7e12054a16d1`
+- **n8n Webhook**: `https://jordanb.app.n8n.cloud/webhook/message-from-user`
 - **Deployment Platform**: Vercel
 - **Environment**: Production-ready with automatic HTTPS
 
@@ -152,124 +152,4 @@ interface Message {
 ### Mana Symbol Support
 
 The app automatically converts these mana symbols:
-- Basic mana: `{W}` `{U}` `{B}` `{R}` `{G}` `{C}`
-- Numbers: `{0}` through `{20}`
-- Variables: `{X}` `{Y}` `{Z}`
-- Hybrid: `{W/U}` `{U/B}` etc.
-- Phyrexian: `{W/P}` `{U/P}` etc.
-- Special: `{T}` `{Q}` `{S}` `{E}`
-
-## Usage
-
-1. **View Messages**: All messages from your MTG chatbot are displayed in the main chat area with mana symbols automatically rendered
-2. **Send Messages**: Use the input box at the bottom to ask questions about MTG cards, rules, or deck building
-3. **Message Roles**: User messages appear on the right with amber background, assistant messages on the left with white background
-4. **Session Persistence**: Your conversation continues across browser refreshes and tabs
-5. **Mana Symbols**: Include mana symbols in your messages using curly braces like `{G}{U}` for green and blue mana
-
-## Deployment
-
-### Vercel (Recommended) ✅ **DEPLOYED**
-
-The app is currently deployed on Vercel at: **[mtg-llm-frontend.vercel.app](https://mtg-llm-frontend.vercel.app)**
-
-To deploy your own version:
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy automatically - no additional configuration needed!
-
-### Other Platforms
-
-The app works with any Node.js hosting platform:
-
-```bash
-npm run build
-npm start
-```
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── globals.css          # Tailwind + custom styles
-│   ├── layout.tsx           # Root layout with metadata
-│   └── page.tsx             # Main chat interface with session management
-├── lib/
-│   ├── fetchMessages.ts     # n8n webhook integration with sessions
-│   └── manaSymbols.ts       # Mana symbol processing
-tailwind.config.ts           # Custom font configuration
-```
-
-## API Reference
-
-### fetchMessages(sessionId: string)
-Fetches messages for a specific session from the n8n webhook.
-
-**Parameters:**
-- `sessionId`: Unique session identifier
-
-**Returns:** `Promise<Message[]>`
-
-### sendMessage(message: string, sessionId: string)
-Sends a message to the n8n webhook for a specific session.
-
-**Parameters:**
-- `message`: The message text to send
-- `sessionId`: Unique session identifier
-
-**Returns:** `Promise<{ success: boolean; error?: string }>`
-
-## Customization
-
-### Fonts
-The app uses Garamond for a fantasy feel. To change this:
-1. Update `tailwind.config.ts`
-2. Modify the `fontFamily.mtg` property
-
-### Styling
-- Main theme colors are in `src/app/globals.css`
-- Parchment styling uses the `.parchment` class
-- User messages: amber background, right-aligned
-- Assistant messages: white background, left-aligned
-- All spacing uses Tailwind utility classes
-
-### Webhook URL
-Update the `WEBHOOK_URL` constant in `src/lib/fetchMessages.ts` to connect to your n8n instance.
-
-## Development
-
-```bash
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run production build locally
-npm start
-
-# Lint code
-npm run lint
-```
-
-## Technologies Used
-
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS 4** - Utility-first CSS
-- **Scryfall API** - Mana symbol SVGs
-- **UUID** - Session management
-- **Vercel** - Deployment platform
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is open source and available under the MIT License.
+- Basic mana: `{W}` `{U}` `{B}` `{R}` `
