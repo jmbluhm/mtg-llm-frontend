@@ -12,8 +12,22 @@ const messageStore: { [sessionId: string]: Message[] } = {};
 
 export async function fetchMessages(sessionId: string): Promise<Message[]> {
   try {
-    // Since the n8n webhook only accepts POST requests, we'll get messages from our local store
-    // The messages will be populated when n8n sends them to our /api/messages endpoint
+    // Fetch messages from our API route instead of the in-memory store
+    const response = await fetch(`/api/messages?session_id=${sessionId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.messages) {
+        return data.messages;
+      }
+    }
+
+    // If API call fails or no messages, return from local store as fallback
     const messages = messageStore[sessionId] || [];
     
     // If no messages exist for this session, return welcome message

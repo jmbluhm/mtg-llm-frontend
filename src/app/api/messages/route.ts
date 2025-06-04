@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addMessagesToStore } from '@/lib/fetchMessages';
+import { addMessagesToStore, getMessagesFromStore } from '@/lib/fetchMessages';
 
 export interface IncomingMessage {
   session_id: string;
@@ -9,6 +9,39 @@ export interface IncomingMessage {
     text: string;
   }>;
   timestamp?: string;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get('session_id');
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: 'session_id parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    const messages = getMessagesFromStore(sessionId);
+    
+    return NextResponse.json({
+      success: true,
+      messages: messages,
+      session_id: sessionId
+    });
+
+  } catch (error) {
+    console.error('Error retrieving messages:', error);
+    
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -92,7 +125,7 @@ export async function OPTIONS() {
     status: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   });

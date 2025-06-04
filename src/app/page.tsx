@@ -41,6 +41,14 @@ function ChatInterface() {
 
   useEffect(() => {
     loadMessages();
+    
+    // Set up polling to check for new messages every 3 seconds
+    const pollInterval = setInterval(() => {
+      loadMessages();
+    }, 3000);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(pollInterval);
   }, [loadMessages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
