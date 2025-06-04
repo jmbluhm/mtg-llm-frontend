@@ -2,6 +2,8 @@
   "name": "mtg-llm-frontend",
   "version": "0.1.0",
   "private": true,
+  "description": "A Next.js frontend chat interface for a Magic: The Gathering AI chatbot with mana symbol rendering and fantasy styling",
+  "keywords": ["magic-the-gathering", "mtg", "nextjs", "typescript", "tailwindcss", "chatbot", "ai"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
