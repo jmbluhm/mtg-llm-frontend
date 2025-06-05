@@ -264,7 +264,7 @@ function MTGChatContent() {
                   </p>
                 </div>
               )}
-              {messages.map((message, idx) => (
+              {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`message-bubble text-lg mb-6 ${
