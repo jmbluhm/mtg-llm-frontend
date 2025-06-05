@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Image from 'next/image';
 import { sendMessage, Message } from '../lib/fetchMessages';
 import { processManaSymbols } from '../lib/manaSymbols';
 
@@ -85,14 +86,14 @@ function MTGChatContent() {
 // Custom component to render markdown with mana symbols
   const MarkdownRenderer = ({ content }: { content: string }) => {
     // Helper function to extract text content from ReactMarkdown children
-    const extractTextContent = (children: any): string => {
+    const extractTextContent = (children: React.ReactNode): string => {
       if (typeof children === 'string') {
         return children;
       }
       if (Array.isArray(children)) {
         return children.map(child => extractTextContent(child)).join('');
       }
-      if (children && typeof children === 'object' && children.props && children.props.children) {
+      if (children && typeof children === 'object' && 'props' in children && children.props && children.props.children) {
         return extractTextContent(children.props.children);
       }
       return '';
@@ -103,13 +104,15 @@ function MTGChatContent() {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-            // Handle images with proper styling
+            // Handle images with proper styling using Next.js Image component
             img: ({ src, alt }) => (
-              <img 
-                src={src} 
-                alt={alt} 
+              <Image 
+                src={src || ''} 
+                alt={alt || ''} 
+                width={300}
+                height={200}
                 className="max-w-full h-auto rounded-lg shadow-md my-2"
-                style={{ maxHeight: '300px' }}
+                style={{ maxHeight: '300px', width: 'auto' }}
               />
             ),
             // Style links
