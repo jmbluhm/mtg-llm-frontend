@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import Image from 'next/image';
 import { sendMessage, Message } from '../lib/fetchMessages';
 import { processManaSymbols } from '../lib/manaSymbols';
 
@@ -93,8 +92,11 @@ function MTGChatContent() {
       if (Array.isArray(children)) {
         return children.map(child => extractTextContent(child)).join('');
       }
-      if (children && typeof children === 'object' && 'props' in children && children.props && children.props.children) {
-        return extractTextContent(children.props.children);
+      if (children && typeof children === 'object' && 'props' in children) {
+        const childWithProps = children as { props?: { children?: React.ReactNode } };
+        if (childWithProps.props && childWithProps.props.children) {
+          return extractTextContent(childWithProps.props.children);
+        }
       }
       return '';
     };
@@ -105,16 +107,21 @@ function MTGChatContent() {
           remarkPlugins={[remarkGfm]}
           components={{
             // Handle images with proper styling using Next.js Image component
-            img: ({ src, alt }) => (
-              <Image 
-                src={src || ''} 
-                alt={alt || ''} 
-                width={300}
-                height={200}
-                className="max-w-full h-auto rounded-lg shadow-md my-2"
-                style={{ maxHeight: '300px', width: 'auto' }}
-              />
-            ),
+            img: ({ src, alt }) => {
+              // For external images (like Scryfall), use regular img tag to avoid Next.js optimization issues
+              if (src && typeof src === 'string') {
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={src} 
+                    alt={alt || ''} 
+                    className="max-w-full h-auto rounded-lg shadow-md my-2"
+                    style={{ maxHeight: '300px' }}
+                  />
+                );
+              }
+              return null;
+            },
             // Style links
             a: ({ href, children }) => (
               <a 
