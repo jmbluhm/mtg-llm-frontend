@@ -20,16 +20,16 @@ This directory contains PNG images for Magic: The Gathering mana symbols.
 - `x.png` - Variable mana cost
 
 ### Hybrid Mana (Optional)
-- `rw.png` - Red/White hybrid
-- `wu.png` - White/Blue hybrid
-- `ub.png` - Blue/Black hybrid
-- `br.png` - Black/Red hybrid
-- `rg.png` - Red/Green hybrid
-- `gw.png` - Green/White hybrid
-- `wb.png` - White/Black hybrid
-- `ur.png` - Blue/Red hybrid
-- `bg.png` - Black/Green hybrid
-- `gu.png` - Green/Blue hybrid
+- `rw.png` - Red/White hybrid -
+- `wu.png` - White/Blue hybrid -
+- `ub.png` - Blue/Black hybrid -
+- `br.png` - Black/Red hybrid -
+- `rg.png` - Red/Green hybrid -
+- `gw.png` - Green/White hybrid -
+- `wb.png` - White/Black hybrid -
+- `ur.png` - Blue/Red hybrid -
+- `bg.png` - Black/Green hybrid -
+- `gu.png` - Green/Blue hybrid -
 
 ### Phyrexian Mana (Optional)
 - `pw.png` - Phyrexian White

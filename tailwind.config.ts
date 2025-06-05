@@ -9,7 +9,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        mtg: ['Garamond', 'Times New Roman', 'serif'],
+        'mtg': ['Cinzel', 'serif'],
+        'mtg-body': ['Crimson Text', 'serif'],
+        'garamond': ['Garamond', 'Times New Roman', 'serif'],
       },
       colors: {
         background: 'var(--background)',
