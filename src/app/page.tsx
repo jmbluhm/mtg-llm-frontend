@@ -2,6 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { sendMessage, Message } from '../lib/fetchMessages';
 import { processManaSymbols } from '../lib/manaSymbols';
 
@@ -80,6 +82,136 @@ function MTGChatContent() {
     }
   };
 
+// Custom component to render markdown with mana symbols
+  const MarkdownRenderer = ({ content }: { content: string }) => {
+    // Helper function to extract text content from ReactMarkdown children
+    const extractTextContent = (children: any): string => {
+      if (typeof children === 'string') {
+        return children;
+      }
+      if (Array.isArray(children)) {
+        return children.map(child => extractTextContent(child)).join('');
+      }
+      if (children && typeof children === 'object' && children.props && children.props.children) {
+        return extractTextContent(children.props.children);
+      }
+      return '';
+    };
+
+    return (
+      <div className="markdown-content">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            // Handle images with proper styling
+            img: ({ src, alt }) => (
+              <img 
+                src={src} 
+                alt={alt} 
+                className="max-w-full h-auto rounded-lg shadow-md my-2"
+                style={{ maxHeight: '300px' }}
+              />
+            ),
+            // Style links
+            a: ({ href, children }) => (
+              <a 
+                href={href} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 hover:text-blue-800 underline"
+              >
+                {children}
+              </a>
+            ),
+            // Add proper spacing and process mana symbols in paragraphs
+            p: ({ children }) => {
+              const textContent = extractTextContent(children);
+              if (textContent.includes('{') && textContent.includes('}')) {
+                return (
+                  <p 
+                    className="mb-2 last:mb-0"
+                    dangerouslySetInnerHTML={{ __html: processManaSymbols(textContent) }}
+                  />
+                );
+              }
+              return <p className="mb-2 last:mb-0">{children}</p>;
+            },
+            // Process mana symbols in strong text
+            strong: ({ children }) => {
+              const textContent = extractTextContent(children);
+              if (textContent.includes('{') && textContent.includes('}')) {
+                return (
+                  <strong 
+                    dangerouslySetInnerHTML={{ __html: processManaSymbols(textContent) }}
+                  />
+                );
+              }
+              return <strong>{children}</strong>;
+            },
+            // Style headers with mana symbol support
+            h1: ({ children }) => {
+              const textContent = extractTextContent(children);
+              if (textContent.includes('{') && textContent.includes('}')) {
+                return (
+                  <h1 
+                    className="text-xl font-bold mb-2 text-stone-800"
+                    dangerouslySetInnerHTML={{ __html: processManaSymbols(textContent) }}
+                  />
+                );
+              }
+              return <h1 className="text-xl font-bold mb-2 text-stone-800">{children}</h1>;
+            },
+            h2: ({ children }) => {
+              const textContent = extractTextContent(children);
+              if (textContent.includes('{') && textContent.includes('}')) {
+                return (
+                  <h2 
+                    className="text-lg font-bold mb-2 text-stone-800"
+                    dangerouslySetInnerHTML={{ __html: processManaSymbols(textContent) }}
+                  />
+                );
+              }
+              return <h2 className="text-lg font-bold mb-2 text-stone-800">{children}</h2>;
+            },
+            h3: ({ children }) => {
+              const textContent = extractTextContent(children);
+              if (textContent.includes('{') && textContent.includes('}')) {
+                return (
+                  <h3 
+                    className="text-base font-bold mb-2 text-stone-800"
+                    dangerouslySetInnerHTML={{ __html: processManaSymbols(textContent) }}
+                  />
+                );
+              }
+              return <h3 className="text-base font-bold mb-2 text-stone-800">{children}</h3>;
+            },
+            // Style lists
+            ul: ({ children }) => (
+              <ul className="list-disc pl-6 mb-2">{children}</ul>
+            ),
+            ol: ({ children }) => (
+              <ol className="list-decimal pl-6 mb-2">{children}</ol>
+            ),
+            li: ({ children }) => {
+              const textContent = extractTextContent(children);
+              if (textContent.includes('{') && textContent.includes('}')) {
+                return (
+                  <li 
+                    className="mb-1"
+                    dangerouslySetInnerHTML={{ __html: processManaSymbols(textContent) }}
+                  />
+                );
+              }
+              return <li className="mb-1">{children}</li>;
+            },
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-stone-200 p-4">
       <div className="max-w-4xl mx-auto">
@@ -118,16 +250,17 @@ function MTGChatContent() {
                 <div className="font-semibold text-sm mb-2 capitalize text-stone-700">
                   {message.role === 'user' ? 'You' : 'MTG Oracle'}
                 </div>
-                <div 
-                  className="text-stone-800"
-                  dangerouslySetInnerHTML={{ 
-                    __html: processManaSymbols(
-                      message.role === 'user' 
-                        ? (message.text || '') 
-                        : (message.response || '')
-                    ) 
-                  }}
-                />
+                <div className="text-stone-800">
+                  {message.role === 'user' ? (
+                    // User messages: process mana symbols in plain text
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: processManaSymbols(message.text || '') 
+                    }} />
+                  ) : (
+                    // Assistant messages: render markdown with mana symbol support
+                    <MarkdownRenderer content={message.response || ''} />
+                  )}
+                </div>
               </div>
             ))}
 

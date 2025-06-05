@@ -13,59 +13,6 @@ export interface AssistantResponse {
 
 const WEBHOOK_URL = 'https://jordanb.app.n8n.cloud/webhook/message-from-user';
 
-// Simple in-memory storage for messages by session
-// In production, this would be a database or Redis
-const messageStore: { [sessionId: string]: Message[] } = {};
-
-export async function fetchMessages(sessionId: string): Promise<Message[]> {
-  try {
-    // Fetch messages from our API route instead of the in-memory store
-    const response = await fetch(`/api/messages?session_id=${sessionId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.success && data.messages) {
-        return data.messages;
-      }
-    }
-
-    // If API call fails or no messages, return from local store as fallback
-    const messages = messageStore[sessionId] || [];
-    
-    // If no messages exist for this session, return welcome message
-    if (messages.length === 0) {
-      return [
-        { id: '1', text: 'Welcome to Magic Chat! How can I help you with your MTG questions?', role: 'assistant' },
-        { id: '2', text: 'Ask me about card interactions, deck building, or rules. Try including mana symbols like {U}{R} in your questions!', role: 'assistant' },
-      ];
-    }
-    
-    return messages;
-  } catch (error) {
-    console.error('Error fetching messages:', error);
-    // Return welcome messages on error
-    return [
-      { id: '1', text: 'Welcome to Magic Chat! How can I help you with your MTG questions?', role: 'assistant' },
-      { id: '2', text: 'I can help you with card interactions, deck building, and rules questions. For example, {U}{R} mana costs are for Izzet spells.', role: 'assistant' },
-    ];
-  }
-}
-
-// Function to add messages to the store (called by our API route)
-export function addMessagesToStore(sessionId: string, messages: Message[]): void {
-  messageStore[sessionId] = messages;
-}
-
-// Function to get all messages for a session (for API route)
-export function getMessagesFromStore(sessionId: string): Message[] {
-  return messageStore[sessionId] || [];
-}
-
 export async function sendMessage(message: string, sessionId: string): Promise<{ success: boolean; assistantMessages?: AssistantResponse[]; error?: string }> {
   try {
     console.log('Attempting to send message to:', WEBHOOK_URL);
