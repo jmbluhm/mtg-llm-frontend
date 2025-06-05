@@ -314,33 +314,30 @@ function MTGChatContent() {
         {/* Input Card */}
         <div className="mtg-card">
           <div className="mtg-card-inner">
-            <form onSubmit={handleSendMessage} className="flex gap-3" aria-label="Send a message to the Oracle">
+            <form onSubmit={handleSendMessage} className="flex gap-4 items-center min-h-20 mb-8" aria-label="Send a message to the Oracle">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Ask about a Magic card, rule, or strategy..."
-                className="flex-1 mtg-input font-mtg-body text-base"
+                className="flex-1 max-w-[calc(100%-4rem)] mtg-input font-mtg-body text-base"
                 disabled={loading}
                 aria-label="Type your message"
               />
               <button
                 type="submit"
-                disabled={!inputMessage.trim() || loading}
-                className="px-10 py-4 mtg-button flex items-center justify-center"
                 aria-label="Send"
+                disabled={!inputMessage.trim() || loading}
+                className={`mtg-send-button ${loading ? 'loading' : ''}`}
               >
                 {loading ? (
                   <span className="mana-spinner" aria-hidden="true"></span>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                    <path d="M22 2L11 13" />
-                    <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-                  </svg>
+                  <span className="mtg-send-icon" aria-hidden="true"></span>
                 )}
               </button>
             </form>
-            <div className="mt-6 text-center">
+            <div className="text-center">
               <p className="text-xs text-[var(--text-muted)] font-mtg-body">
                 You can reference mana symbols like {'{'}G{'}'}, {'{'}U{'}'}, {'{'}R{'}'}, {'{'}W{'}'}, {'{'}B{'}'} in your messages
               </p>

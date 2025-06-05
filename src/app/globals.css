@@ -6,13 +6,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap');
 
+/* Import Material Symbols for icons - simplified version */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+
 :root {
   /* Light mode - Parchment Theme */
-  --bg-primary: #f7f3e9;
+  --bg-primary: #ede6d3;
   --bg-secondary: #f0ead6;
-  --bg-card: #faf8f2;
-  --bg-user: #e6f3ff;
-  --bg-assistant: #f0f8e8;
+  --bg-card: rgba(250, 248, 242, 0.85);
+  --bg-user: rgba(230, 243, 255, 0.9);
+  --bg-assistant: rgba(240, 248, 232, 0.9);
   --bg-header: #eae4d3;
   
   --text-primary: #2d2520;
@@ -29,16 +32,16 @@
   --shadow-heavy: rgba(139, 125, 107, 0.3);
   
   --gradient-gold: linear-gradient(135deg, #ffd700 0%, #b8860b 50%, #daa520 100%);
-  --gradient-frame: linear-gradient(145deg, #f7f3e9 0%, #eae4d3 50%, #d4c4a8 100%);
+  --gradient-frame: linear-gradient(145deg, rgba(247, 243, 233, 0.9) 0%, rgba(234, 228, 211, 0.9) 50%, rgba(212, 196, 168, 0.9) 100%);
 }
 
 [data-theme="dark"] {
   /* Dark mode - Obsidian Theme */
-  --bg-primary: #1a1612;
+  --bg-primary: #0f0d0a;
   --bg-secondary: #252017;
-  --bg-card: #2a251c;
-  --bg-user: #1e2a3a;
-  --bg-assistant: #1e2a1e;
+  --bg-card: rgba(42, 37, 28, 0.85);
+  --bg-user: rgba(30, 42, 58, 0.9);
+  --bg-assistant: rgba(30, 42, 30, 0.9);
   --bg-header: #332d24;
   
   --text-primary: #e8dcc0;
@@ -55,15 +58,28 @@
   --shadow-heavy: rgba(0, 0, 0, 0.7);
   
   --gradient-gold: linear-gradient(135deg, #daa520 0%, #b8860b 50%, #8b6914 100%);
-  --gradient-frame: linear-gradient(145deg, #2a251c 0%, #332d24 50%, #4a4035 100%);
+  --gradient-frame: linear-gradient(145deg, rgba(42, 37, 28, 0.9) 0%, rgba(51, 45, 36, 0.9) 50%, rgba(74, 64, 53, 0.9) 100%);
 }
 
 body {
   font-family: 'EB Garamond', Garamond, serif;
   font-size: 1.15rem;
-  background: var(--bg-primary);
+  background-color: var(--bg-primary);
+  background-image: 
+    linear-gradient(rgba(237, 230, 211, 0.65), rgba(237, 230, 211, 0.65)),
+    url('/wrinkled-parchment.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-blend-mode: soft-light;
   color: #4b3a22;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] body {
+  background-image: 
+    linear-gradient(rgba(15, 13, 10, 0.75), rgba(15, 13, 10, 0.75)),
+    url('/wrinkled-parchment.jpg');
 }
 
 /* MTG Card Frame Styles */
@@ -77,6 +93,7 @@ body {
   background-image: url('/parchment-texture.png'), var(--bg-card);
   background-size: cover;
   background-blend-mode: multiply;
+  margin-bottom: 0.5rem;
 }
 
 .mtg-card::before {
@@ -297,6 +314,96 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* MTG Send Button - Dedicated class separate from .mtg-button */
+.mtg-send-button {
+  /* Base styles */
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 2px solid #a16207;
+  padding: 0;
+  margin: 0;
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  /* Visual */
+  color: white;
+  font-size: 0;
+  cursor: pointer;
+  outline: none;
+  overflow: visible;
+  
+  /* Transitions */
+  transition: all 0.15s ease;
+  
+  /* States */
+  background: var(--gradient-gold);
+}
+
+.mtg-send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(to bottom right, #fef3c7, #fde047, #facc15);
+}
+
+.mtg-send-button.loading {
+  opacity: 0.6;
+  cursor: wait;
+  background: linear-gradient(to bottom right, #fde047, #eab308, #a16207);
+}
+
+.mtg-send-button:hover:not(:disabled):not(.loading) {
+  box-shadow: 0 0 16px 4px #10b981, 0 0 4px 2px rgba(16, 185, 129, 0.4);
+  transform: scale(1.05);
+}
+
+.mtg-send-button:active:not(:disabled):not(.loading) {
+  transform: scale(0.95);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .mtg-send-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* Send icon styling using Material Symbols with fallback */
+.mtg-send-icon {
+  font-family: 'Material Symbols Outlined', Arial, sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  color: inherit;
+}
+
+/* Use CSS content for reliable icon display */
+.mtg-send-icon::before {
+  content: "send";
+  font-family: 'Material Symbols Outlined', Arial, sans-serif;
+}
+
+/* Fallback if Material Symbols doesn't load */
+.mtg-send-icon:not(.material-symbols-loaded)::before {
+  content: "➤";
+  font-family: Arial, sans-serif;
 }
 
 /* Mana Symbol Styling */
