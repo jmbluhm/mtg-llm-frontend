@@ -1,7 +1,14 @@
 export interface Message {
-  id?: string;
-  text: string;
+  id: string;
   role: 'user' | 'assistant';
+  text?: string;
+  response?: string;
+}
+
+export interface AssistantResponse {
+  id: string;
+  role: 'assistant';
+  response: string;
 }
 
 const WEBHOOK_URL = 'https://jordanb.app.n8n.cloud/webhook/message-from-user';
@@ -59,7 +66,7 @@ export function getMessagesFromStore(sessionId: string): Message[] {
   return messageStore[sessionId] || [];
 }
 
-export async function sendMessage(message: string, sessionId: string): Promise<{ success: boolean; error?: string }> {
+export async function sendMessage(message: string, sessionId: string): Promise<{ success: boolean; assistantMessages?: AssistantResponse[]; error?: string }> {
   try {
     console.log('Attempting to send message to:', WEBHOOK_URL);
     console.log('Session ID:', sessionId);
@@ -90,19 +97,22 @@ export async function sendMessage(message: string, sessionId: string): Promise<{
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
-    const responseData = await response.text();
+    const responseData = await response.json();
     console.log('Response data:', responseData);
 
-    // Add the user message to our local store immediately
-    const currentMessages = getMessagesFromStore(sessionId);
-    const userMessage: Message = {
-      id: `${Date.now()}-user`,
-      text: message,
-      role: 'user'
-    };
-    addMessagesToStore(sessionId, [...currentMessages, userMessage]);
+    // Expect an array of assistant messages
+    if (Array.isArray(responseData)) {
+      return { 
+        success: true, 
+        assistantMessages: responseData.map(msg => ({
+          id: msg.id,
+          role: 'assistant' as const,
+          response: msg.response
+        }))
+      };
+    }
 
-    return { success: true };
+    return { success: true, assistantMessages: [] };
   } catch (error) {
     console.error('Error sending message:', error);
     

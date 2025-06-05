@@ -1,203 +1,183 @@
 'use client';
 
-import { useEffect, useState, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { fetchMessages, sendMessage, Message } from '@/lib/fetchMessages';
-import { processManaSymbols } from '@/lib/manaSymbols';
+import { sendMessage, Message } from '../lib/fetchMessages';
+import { processManaSymbols } from '../lib/manaSymbols';
 
-function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [inputMessage, setInputMessage] = useState('');
-  const [sending, setSending] = useState(false);
-  const [sendError, setSendError] = useState<string | null>(null);
-
+function MTGChatContent() {
   const searchParams = useSearchParams();
-  const [sessionId] = useState(() => {
-    const urlSession = searchParams.get('session_id');
-    if (urlSession) return urlSession;
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('mtg_session_id') : null;
-    if (stored) return stored;
-    const newId = crypto.randomUUID();
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mtg_session_id', newId);
-    }
-    return newId;
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [sessionId, setSessionId] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
-  const loadMessages = useCallback(async () => {
-    try {
-      setLoading(true);
-      const fetchedMessages = await fetchMessages(sessionId);
-      setMessages(fetchedMessages);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load messages');
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId]);
-
+  // Initialize session ID
   useEffect(() => {
-    loadMessages();
+    let id = searchParams.get('session');
     
-    // Set up polling to check for new messages every 3 seconds
-    const pollInterval = setInterval(() => {
-      loadMessages();
-    }, 3000);
+    if (!id) {
+      // Try to get from localStorage
+      id = localStorage.getItem('mtg-chat-session-id');
+    }
     
-    // Clean up interval on unmount
-    return () => clearInterval(pollInterval);
-  }, [loadMessages]);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('mtg-chat-session-id', id);
+    }
+    
+    setSessionId(id);
+  }, [searchParams]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!inputMessage.trim() || sending) return;
+    if (!inputMessage.trim() || loading) return;
 
-    setSending(true);
-    setSendError(null);
+    // Immediately append the user message to the state
+    const userMessage: Message = {
+      id: `${Date.now()}-user`,
+      role: 'user',
+      text: inputMessage.trim()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    const currentMessage = inputMessage.trim();
+    setInputMessage('');
+    setLoading(true);
 
     try {
-      const result = await sendMessage(inputMessage.trim(), sessionId);
+      // Send message and get assistant responses
+      const result = await sendMessage(currentMessage, sessionId);
       
-      if (result.success) {
-        setInputMessage('');
-        // Refresh messages after sending
-        await loadMessages();
-      } else {
-        setSendError(result.error || 'Failed to send message');
+      if (result.success && result.assistantMessages) {
+        // Append all assistant messages from the webhook response
+        const assistantMessages: Message[] = result.assistantMessages.map(msg => ({
+          id: msg.id,
+          role: 'assistant',
+          response: msg.response
+        }));
+        
+        setMessages(prev => [...prev, ...assistantMessages]);
+      } else if (result.error) {
+        // Add an error message as an assistant response
+        const errorMessage: Message = {
+          id: `${Date.now()}-error`,
+          role: 'assistant',
+          response: `Error: ${result.error}`
+        };
+        setMessages(prev => [...prev, errorMessage]);
       }
-    } catch (err) {
-      setSendError(err instanceof Error ? err.message : 'Failed to send message');
+    } catch (error) {
+      console.error('Error in handleSendMessage:', error);
+      const errorMessage: Message = {
+        id: `${Date.now()}-error`,
+        role: 'assistant',
+        response: 'An unexpected error occurred. Please try again.'
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setSending(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-stone-200 font-mtg">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-900 mb-2 tracking-wide">
-            Magic Chat
+    <div className="min-h-screen bg-stone-200 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-stone-100 rounded-lg shadow-lg p-6 mb-4">
+          <h1 className="text-3xl font-mtg font-bold text-stone-800 mb-4 text-center">
+            Magic: The Gathering Oracle
           </h1>
-          <p className="text-lg text-amber-800">
-            Your AI companion for all things Magic: The Gathering
+          <p className="text-stone-600 text-center mb-6 font-mtg">
+            Ask me about Magic cards, rules, strategies, and lore!
           </p>
+          
+          {sessionId && (
+            <p className="text-xs text-stone-500 text-center mb-4">
+              Session ID: {sessionId}
+            </p>
+          )}
         </div>
 
-        {/* Main Chat Area */}
-        <div className="max-w-4xl mx-auto">
-          <div className="parchment rounded-lg shadow-lg p-6 min-h-[400px] mb-6">
-            {loading && (
-              <div className="flex items-center justify-center h-32">
-                <div className="text-amber-700 text-lg">Loading messages...</div>
+        <div className="bg-stone-100 rounded-lg shadow-lg p-6 mb-4 min-h-96">
+          <div className="space-y-4 mb-6">
+            {messages.length === 0 && !loading && (
+              <div className="text-center text-stone-600 font-mtg italic py-8">
+                Welcome! Ask me anything about Magic: The Gathering cards, rules, or lore.
               </div>
             )}
-
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <strong>Error:</strong> {error}
-              </div>
-            )}
-
-            {!loading && !error && (
-              <div className="space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center text-amber-700 py-8">
-                    No messages found. Start a conversation below!
-                  </div>
-                ) : (
-                  messages.map((message, index) => (
-                    <div
-                      key={message.id || index}
-                      className={`rounded-lg shadow-md p-4 border transition-shadow duration-200 ${
-                        message.role === 'user'
-                          ? 'bg-amber-50 border-amber-300 text-amber-900 text-right'
-                          : 'bg-white bg-opacity-70 border-amber-200 text-amber-900'
-                      }`}
-                    >
-                      <div
-                        className="leading-relaxed"
-                        dangerouslySetInnerHTML={{
-                          __html: processManaSymbols(message.text)
-                        }}
-                      />
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Message Input Box */}
-          <div className="parchment rounded-lg shadow-lg p-4">
-            <form onSubmit={handleSendMessage} className="space-y-4">
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="Ask about MTG cards, rules, or deck building..."
-                  className="flex-1 px-4 py-3 rounded-lg border border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none bg-white bg-opacity-90 text-amber-900 placeholder-amber-600 font-mtg"
-                  disabled={sending}
-                />
-                <button
-                  type="submit"
-                  disabled={!inputMessage.trim() || sending}
-                  className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                >
-                  {sending ? 'Sending...' : 'Send'}
-                </button>
-              </div>
-              
-              {sendError && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
-                  <strong>Send Error:</strong> {sendError}
-                </div>
-              )}
-            </form>
-
-            <div className="mt-3 text-xs text-amber-600 text-center">
-              Use {'{G}'}, {'{U}'}, {'{B}'}, {'{R}'}, {'{W}'} for mana symbols in your messages
-            </div>
-          </div>
-
-          {/* Footer Information */}
-          <div className="mt-8 text-center text-sm text-amber-700">
-            <p>
-              Mana symbols are rendered using{' '}
-              <a 
-                href="https://scryfall.com/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="underline hover:text-amber-900"
+            
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`p-4 rounded-lg ${
+                  message.role === 'user'
+                    ? 'bg-blue-100 border-l-4 border-blue-500 ml-8'
+                    : 'bg-green-100 border-l-4 border-green-500 mr-8'
+                } font-mtg`}
               >
-                Scryfall&apos;s mana symbol API
-              </a>
-            </p>
+                <div className="font-semibold text-sm mb-2 capitalize text-stone-700">
+                  {message.role === 'user' ? 'You' : 'MTG Oracle'}
+                </div>
+                <div 
+                  className="text-stone-800"
+                  dangerouslySetInnerHTML={{ 
+                    __html: processManaSymbols(
+                      message.role === 'user' 
+                        ? (message.text || '') 
+                        : (message.response || '')
+                    ) 
+                  }}
+                />
+              </div>
+            ))}
+
+            {loading && (
+              <div className="bg-green-100 border-l-4 border-green-500 mr-8 p-4 rounded-lg font-mtg">
+                <div className="font-semibold text-sm mb-2 text-stone-700">MTG Oracle</div>
+                <div className="text-stone-600 italic flex items-center">
+                  <div className="animate-spin inline-block w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full mr-2"></div>
+                  Thinking...
+                </div>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="bg-stone-100 rounded-lg shadow-lg p-6">
+          <form onSubmit={handleSendMessage} className="flex gap-2">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Ask about a Magic card, rule, or strategy..."
+              className="flex-1 px-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mtg"
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              disabled={!inputMessage.trim() || loading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-stone-400 disabled:cursor-not-allowed font-mtg font-semibold transition-colors"
+            >
+              {loading ? 'Sending...' : 'Send'}
+            </button>
+          </form>
+          <p className="text-xs text-stone-500 mt-2 font-mtg">
+            You can reference mana symbols like {'{'}G{'}'}, {'{'}U{'}'}, {'{'}R{'}'}, {'{'}W{'}'}, {'{'}B{'}'} in your messages!
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-function LoadingFallback() {
+export default function MTGChat() {
   return (
-    <div className="min-h-screen bg-stone-200 font-mtg flex items-center justify-center">
-      <div className="text-amber-700 text-lg">Loading Magic Chat...</div>
-    </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <ChatInterface />
+    <Suspense fallback={
+      <div className="min-h-screen bg-stone-200 flex items-center justify-center">
+        <div className="text-stone-600 font-mtg">Loading chat...</div>
+      </div>
+    }>
+      <MTGChatContent />
     </Suspense>
   );
 }
