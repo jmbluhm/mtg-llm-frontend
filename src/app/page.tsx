@@ -236,8 +236,8 @@ function MTGChatContent() {
                 <h1 className="text-4xl font-mtg mtg-title mb-4">
                   Magic: The Gathering Oracle
                 </h1>
-                <div className="mtg-ornament mb-6"></div>
-                <p className="text-lg text-[var(--text-secondary)] font-mtg-body italic">
+                <div className="mtg-ornament mb-6 hidden sm:block"></div>
+                <p className="text-lg text-[var(--text-secondary)] font-mtg-body italic hidden sm:block">
                   Consult the ancient wisdom of the multiverse
                 </p>
               </div>
@@ -327,10 +327,16 @@ function MTGChatContent() {
               <button
                 type="submit"
                 disabled={!inputMessage.trim() || loading}
-                className="px-10 py-4 mtg-button"
-                aria-label="Cast Spell"
+                className="px-10 py-4 mtg-button flex items-center justify-center"
+                aria-label="Send"
               >
-                {loading ? <span className="mana-spinner" aria-hidden="true"></span> : 'Cast Spell'}
+                {loading ? (
+                  <span className="mana-spinner" aria-hidden="true"></span>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 20.5l17.5-8.5-17.5-8.5v7l13 1.5-13 1.5v7z" />
+                  </svg>
+                )}
               </button>
             </form>
             <div className="mt-6 text-center">
