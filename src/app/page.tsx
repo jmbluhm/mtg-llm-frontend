@@ -330,7 +330,7 @@ function MTGChatContent() {
                                color: 'white'
                              }}>
                           {message.role === 'user' ? (
-                            <span className="text-xs">👤</span>
+                            <span className="text-xs"></span>
                           ) : null}
                         </div>
                         <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
