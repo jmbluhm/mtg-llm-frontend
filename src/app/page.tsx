@@ -394,31 +394,34 @@ function MTGChatContent() {
         {/* Enhanced Input Card */}
         <div className="mtg-card">
           <div className="mtg-card-inner">
-            <form onSubmit={handleSendMessage} className="flex gap-6 items-center min-h-20 mb-6" aria-label="Send a message to the Oracle">
-              <div className="flex-1">
+            <form onSubmit={handleSendMessage} className="mb-6" aria-label="Send a message to the Oracle">
+              <div className="relative flex items-center">
                 <input
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder="Ask about a Magic card, rule, or strategy..."
-                  className="w-full mtg-input font-mtg-body text-[1.05rem]"
+                  className="flex-1 mtg-input font-mtg-body text-[1.05rem]"
                   disabled={loading}
                   aria-label="Type your message"
                 />
+                <button
+                  type="submit"
+                  aria-label="Cast Spell"
+                  disabled={!inputMessage.trim() || loading}
+                  className={`flex-shrink-0 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center border-2 border-[var(--border-primary)] cursor-pointer outline-none ${
+                    loading 
+                      ? 'bg-[var(--border-secondary)] cursor-wait' 
+                      : 'mtg-send-button'
+                  }`}
+                  style={{ marginLeft: '1rem' }}
+                  title="Cast your inquiry into the aether"
+                >
+                  {loading && (
+                    <span className="mana-spinner" aria-hidden="true"></span>
+                  )}
+                </button>
               </div>
-              <button
-                type="submit"
-                aria-label="Cast Spell"
-                disabled={!inputMessage.trim() || loading}
-                className={`mtg-send-button ${loading ? 'loading' : ''} group flex-shrink-0 w-10 h-10 rounded-full bg-[var(--border-accent)] hover:bg-[var(--text-accent)] transition-colors duration-200 text-white text-base flex items-center justify-center`}
-                title="Cast your inquiry into the aether"
-              >
-                {loading ? (
-                  <span className="mana-spinner" aria-hidden="true"></span>
-                ) : (
-                  <span className="text-lg leading-none">➤</span>
-                )}
-              </button>
             </form>
             <div className="text-center">
               <p className="text-xs text-[var(--text-muted)] font-mtg-body italic">
