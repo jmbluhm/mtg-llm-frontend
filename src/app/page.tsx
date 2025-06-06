@@ -111,7 +111,7 @@ function MTGChatContent() {
             img: ({ src, alt }) => {
               // For external images (like Scryfall), use regular img tag to avoid Next.js optimization issues
               if (src && typeof src === 'string') {
-                return (
+  return (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={src} 
@@ -127,8 +127,8 @@ function MTGChatContent() {
             a: ({ href, children }) => (
               <a 
                 href={href} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+            target="_blank"
+            rel="noopener noreferrer"
                 className="text-[var(--text-accent)] hover:text-[var(--border-accent)] underline font-medium transition-colors"
               >
                 {children}
@@ -233,13 +233,13 @@ function MTGChatContent() {
             <div className="flex justify-between items-start mb-8">
               <div className="w-10"></div> {/* Spacer */}
               <div className="flex-1">
-                <h1 className="text-4xl font-mtg mtg-title mb-4">
-                  Magic: The Gathering Oracle
+                <h1 className="text-4xl font-mtg mtg-title mb-2">
+                  CommanderGPT
                 </h1>
+                <h2 className="text-lg font-mtg text-[var(--text-secondary)] italic mb-4 font-normal">
+                  Neither friend nor foe, your MTG AI Companion
+                </h2>
                 <div className="mtg-ornament mb-6 hidden sm:block"></div>
-                <p className="text-lg text-[var(--text-secondary)] font-mtg-body italic hidden sm:block">
-                  Consult the ancient wisdom of the multiverse
-                </p>
               </div>
               <div className="w-10 flex justify-end">
                 <ThemeToggle />
@@ -257,7 +257,6 @@ function MTGChatContent() {
             <div className="space-y-6">
               {messages.length === 0 && !loading && (
                 <div className="text-center py-16">
-                  <div className="text-6xl mb-6">📜</div>
                   <h3 className="text-xl font-mtg text-[var(--text-accent)] mb-4">Welcome, Human</h3>
                   <p className="text-[var(--text-secondary)] font-mtg-body">
                     Ask me about cards, rules, strategies, or the lore of the multiverse.
@@ -330,10 +329,8 @@ function MTGChatContent() {
                 disabled={!inputMessage.trim() || loading}
                 className={`mtg-send-button ${loading ? 'loading' : ''}`}
               >
-                {loading ? (
+                {loading && (
                   <span className="mana-spinner" aria-hidden="true"></span>
-                ) : (
-                  <span className="mtg-send-icon" aria-hidden="true"></span>
                 )}
               </button>
             </form>

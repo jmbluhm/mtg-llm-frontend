@@ -342,29 +342,34 @@ body {
   /* Transitions */
   transition: all 0.15s ease;
   
-  /* States */
-  background: var(--gradient-gold);
-}
-
-.mtg-send-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: linear-gradient(to bottom right, #fef3c7, #fde047, #facc15);
-}
-
-.mtg-send-button.loading {
-  opacity: 0.6;
-  cursor: wait;
-  background: linear-gradient(to bottom right, #fde047, #eab308, #a16207);
+  /* Background and Icon */
+  background-color: #4a3728;
+  background-image: url('/iconTransparent.png');
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .mtg-send-button:hover:not(:disabled):not(.loading) {
+  background-color: #5c4533;
   box-shadow: 0 0 16px 4px #10b981, 0 0 4px 2px rgba(16, 185, 129, 0.4);
   transform: scale(1.05);
 }
 
 .mtg-send-button:active:not(:disabled):not(.loading) {
   transform: scale(0.95);
+}
+
+.mtg-send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #4a3728;
+}
+
+.mtg-send-button.loading {
+  opacity: 0.6;
+  cursor: wait;
+  background-image: none;
 }
 
 /* Mobile responsive */
@@ -392,7 +397,7 @@ body {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
   color: inherit;
-}
+  }
 
 /* Use CSS content for reliable icon display */
 .mtg-send-icon::before {

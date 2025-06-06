@@ -35,9 +35,9 @@ A beautiful, fantasy-themed Next.js frontend for a Magic: The Gathering AI chatb
    - To use your own webhook, update the `WEBHOOK_URL` in `src/lib/fetchMessages.ts`
 
 4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
