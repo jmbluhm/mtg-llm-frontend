@@ -14,6 +14,12 @@ function MTGChatContent() {
   const [inputMessage, setInputMessage] = useState('');
   const [sessionId, setSessionId] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure particles only render on client side to avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Initialize session ID
   useEffect(() => {
@@ -226,17 +232,38 @@ function MTGChatContent() {
 
   return (
     <div className="min-h-screen p-6 font-mtg-body">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header Card */}
+      {/* Floating Mana Particles - Client Side Only */}
+      {isClient && (
+        <div className="fixed inset-0 pointer-events-none">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="mana-float"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${6 + Math.random() * 4}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+        {/* Enhanced Header Card */}
         <div className="mtg-card relative">
           <div className="mtg-card-inner mtg-card-header text-center">
             <div className="flex justify-between items-start mb-8">
               <div className="w-10"></div> {/* Spacer */}
               <div className="flex-1">
-                <h1 className="text-4xl font-mtg mtg-title mb-2">
-                  CommanderGPT
-                </h1>
-                <h2 className="text-lg font-mtg text-[var(--text-secondary)] italic mb-4 font-normal">
+                <div className="flex items-center justify-center gap-4 mb-2">
+                  
+                  <h1 className="text-4xl font-mtg-decorative mtg-title">
+                    CommanderGPT
+                  </h1>
+                  
+                </div>
+                <h2 className="text-lg font-mtg-body mtg-subtitle mb-4 font-normal">
                   Neither friend nor foe, your MTG AI Companion
                 </h2>
                 <div className="mtg-ornament mb-6 hidden sm:block"></div>
@@ -245,53 +272,104 @@ function MTGChatContent() {
                 <ThemeToggle />
               </div>
             </div>
-            {/* {sessionId && (
-              <span className="mtg-session-pill">Session: {sessionId.substring(0, 8)}...</span>
-            )} */}
+            {/* Enhanced gradient border */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-60"></div>
           </div>
         </div>
 
-        {/* Chat Messages Card */}
+        {/* Enhanced Chat Messages Card */}
         <div className="mtg-card">
           <div className="mtg-card-inner min-h-96">
-            <div className="space-y-6">
+            <div className="space-y-0">
               {messages.length === 0 && !loading && (
                 <div className="text-center py-16">
-                  <h3 className="text-xl font-mtg text-[var(--text-accent)] mb-4">Welcome, Human</h3>
-                  <p className="text-[var(--text-secondary)] font-mtg-body">
-                    Ask me about cards, rules, strategies, or the lore of the multiverse.
-                  </p>
+                  <div className="mb-6">
+                    <img 
+                      src="/iconTransparent.png" 
+                      alt="Oracle Symbol" 
+                      className="w-16 h-16 mx-auto opacity-60 mb-4"
+                    />
+                    <h3 className="text-xl font-mtg text-[var(--text-accent)] mb-4">Welcome, Human</h3>
+                    <p className="text-[var(--text-secondary)] font-mtg-body text-lg leading-relaxed max-w-md mx-auto">
+                      Ask me about cards, rules, strategies, or the lore of the multiverse. 
+                      I am your arcane companion through the realms of Magic.
+                    </p>
+                  </div>
                 </div>
               )}
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`message-bubble text-lg mb-6 ${
-                    message.role === 'user' ? 'message-user' : 'message-assistant'
-                  }`}
-                  aria-label={message.role === 'user' ? 'User message' : 'Oracle response'}
-                >
-                  <div className="flex items-center mb-8">
-                    
-                  </div>
-                  <div className="ml-20 text-[var(--text-primary)]">
-                    {message.role === 'user' ? (
-                      <div 
-                        className="font-mtg-body leading-relaxed text-base"
-                        dangerouslySetInnerHTML={{ 
-                          __html: processManaSymbols(message.text || '') 
-                        }} 
-                      />
-                    ) : (
-                      <MarkdownRenderer content={message.response || ''} />
+              {messages.map((message, index) => {
+                const prevMessage = index > 0 ? messages[index - 1] : null;
+                const isRoleChange = prevMessage && prevMessage.role !== message.role;
+                const marginClass = index === 0 ? '' : isRoleChange ? 'mt-10 sm:mt-12' : 'mt-6 sm:mt-8';
+                
+                return (
+                  <div key={message.id}>
+                    {/* Subtle divider for role changes */}
+                    {isRoleChange && (
+                      <div className="flex items-center justify-center my-8 sm:my-10">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                        <div className="mx-4">
+                          <div className="w-2 h-2 rounded-full bg-[var(--border-accent)] opacity-40"></div>
+                        </div>
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                      </div>
                     )}
+                    
+                    <div
+                      className={`message-bubble text-lg mb-8 ${marginClass} ${
+                        message.role === 'user' ? 'message-user' : 'message-assistant'
+                      }`}
+                      aria-label={message.role === 'user' ? 'User message' : 'Oracle response'}
+                    >
+                      <div className="flex items-center mb-4">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0"
+                             style={{
+                               background: message.role === 'user' 
+                                 ? 'linear-gradient(135deg, #3b82f6, #1e40af)' 
+                                 : 'linear-gradient(135deg, #10b981, #059669)',
+                               color: 'white'
+                             }}>
+                          {message.role === 'user' ? (
+                            <span className="text-xs">👤</span>
+                          ) : null}
+                        </div>
+                        <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
+                          {message.role === 'user' ? 'Planeswalker' : 'Oracle of the Multiverse'}
+                        </div>
+                      </div>
+                      <div className="ml-14 text-[var(--text-primary)]">
+                        {message.role === 'user' ? (
+                          <div 
+                            className="font-mtg-body leading-relaxed text-[1.05rem]"
+                            dangerouslySetInnerHTML={{ 
+                              __html: processManaSymbols(message.text || '') 
+                            }} 
+                          />
+                        ) : (
+                          <MarkdownRenderer content={message.response || ''} />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {loading && (
-                <div className="message-bubble message-assistant text-lg p-10 my-6 relative">
-                  <div className="flex items-center mb-8">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold mr-8 flex-shrink-0"
+                <div className={`message-bubble message-assistant text-lg p-6 mb-8 relative ${
+                  messages.length > 0 ? 'mt-10 sm:mt-12' : ''
+                }`}>
+                  {/* Divider for loading message if there are previous messages */}
+                  {messages.length > 0 && (
+                    <div className="flex items-center justify-center mb-8">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                      <div className="mx-4">
+                        <div className="w-2 h-2 rounded-full bg-[var(--border-accent)] opacity-40"></div>
+                      </div>
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0"
                          style={{
                            background: 'linear-gradient(135deg, #10b981, #059669)',
                            color: 'white'
@@ -299,10 +377,13 @@ function MTGChatContent() {
                       <span className="sr-only">Loading</span>
                       <span className="mana-spinner" aria-hidden="true"></span>
                     </div>
+                    <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
+                      Oracle of the Multiverse
+                    </div>
                   </div>
-                  <div className="ml-20 flex items-center text-[var(--text-secondary)] italic">
-                    <div className="mana-particle-trail"></div>
-                    Summoning...
+                  <div className="ml-14 flex items-center text-[var(--text-secondary)] italic">
+                    <div className="mana-particle-trail"><span></span></div>
+                    Consulting the ancient tomes...
                   </div>
                 </div>
               )}
@@ -310,34 +391,42 @@ function MTGChatContent() {
           </div>
         </div>
 
-        {/* Input Card */}
+        {/* Enhanced Input Card */}
         <div className="mtg-card">
           <div className="mtg-card-inner">
-            <form onSubmit={handleSendMessage} className="flex gap-4 items-center min-h-20 mb-8" aria-label="Send a message to the Oracle">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask about a Magic card, rule, or strategy..."
-                className="flex-1 max-w-[calc(100%-4rem)] mtg-input font-mtg-body text-base"
-                disabled={loading}
-                aria-label="Type your message"
-              />
+            <form onSubmit={handleSendMessage} className="flex gap-6 items-center min-h-20 mb-6" aria-label="Send a message to the Oracle">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Ask about a Magic card, rule, or strategy..."
+                  className="w-full mtg-input font-mtg-body text-[1.05rem]"
+                  disabled={loading}
+                  aria-label="Type your message"
+                />
+              </div>
               <button
                 type="submit"
-                aria-label="Send"
+                aria-label="Cast Spell"
                 disabled={!inputMessage.trim() || loading}
-                className={`mtg-send-button ${loading ? 'loading' : ''}`}
+                className={`mtg-send-button ${loading ? 'loading' : ''} group flex-shrink-0 w-10 h-10 rounded-full bg-[var(--border-accent)] hover:bg-[var(--text-accent)] transition-colors duration-200 text-white text-base flex items-center justify-center`}
+                title="Cast your inquiry into the aether"
               >
-                {loading && (
+                {loading ? (
                   <span className="mana-spinner" aria-hidden="true"></span>
+                ) : (
+                  <span className="text-lg leading-none">➤</span>
                 )}
               </button>
             </form>
             <div className="text-center">
-              <p className="text-xs text-[var(--text-muted)] font-mtg-body">
+              <p className="text-xs text-[var(--text-muted)] font-mtg-body italic">
                 You can reference mana symbols like {'{'}G{'}'}, {'{'}U{'}'}, {'{'}R{'}'}, {'{'}W{'}'}, {'{'}B{'}'} in your messages
               </p>
+              <div className="flex justify-center items-center gap-2 mt-2 opacity-60">
+                <span className="text-xs text-[var(--text-muted)]">Powered by arcane algorithms</span>
+              </div>
             </div>
           </div>
         </div>
