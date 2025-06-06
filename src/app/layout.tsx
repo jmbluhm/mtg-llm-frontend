@@ -6,12 +6,6 @@ export const metadata: Metadata = {
   description: 'Your MTG AI Companion',
   keywords: ["Magic: The Gathering", "MTG", "AI", "Chatbot", "Deck Building", "Rules"],
   authors: [{ name: "MTG Chat Team" }],
-  icons: {
-    icon: [
-      { url: '/favicon.png', type: 'image/png' },
-      { url: '/iconWithBackground.png', type: 'image/png' }
-    ],
-  },
 };
 
 export const viewport: Viewport = {
@@ -26,9 +20,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
-      </head>
       <body className="antialiased">
         {children}
       </body>
