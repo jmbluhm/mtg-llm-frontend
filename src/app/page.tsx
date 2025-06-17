@@ -62,8 +62,9 @@ function MTGChatContent() {
         // Append all assistant messages from the webhook response
         const assistantMessages: Message[] = result.assistantMessages.map(msg => ({
           id: msg.id,
-          role: 'assistant',
-          response: msg.response
+          role: msg.role,
+          response: msg.response,
+          content: msg.content
         }));
         
         setMessages(prev => [...prev, ...assistantMessages]);
