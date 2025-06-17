@@ -59,7 +59,7 @@ export async function sendMessage(message: string, sessionId: string): Promise<{
     let responseData;
     try {
       responseData = JSON.parse(text);
-    } catch (err) {
+    } catch {
       throw new Error('Invalid JSON response from backend');
     }
 
