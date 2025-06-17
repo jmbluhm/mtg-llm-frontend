@@ -338,61 +338,55 @@ function MTGChatContent() {
                         (() => {
                           const content = message.content;
                           return (
-                            <div className="assistant-card-content">
-                              {/* Card Name and Type */}
-                              <div className="font-mtg font-bold text-xl mb-1">{content.cardName}</div>
-                              <div className="text-sm text-[var(--text-muted)] mb-3">{content.cardType}</div>
-                              {/* Oracle Text */}
-                              <div className="mb-3">
-                                <div className="font-mtg text-[var(--text-accent)] text-sm mb-1">Oracle Text</div>
-                                <div className="bg-[var(--bg-secondary)] rounded px-3 py-2 font-mono text-sm border border-[var(--border-secondary)] whitespace-pre-line">
-                                  {content.oracleText}
+                            <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col gap-4 sm:flex-row sm:items-start">
+                              {/* Left: Text sections */}
+                              <div className="flex-1 flex flex-col gap-3 min-w-0">
+                                {/* Card Name and Type */}
+                                <div>
+                                  <div className="font-mtg font-bold text-2xl mb-1 break-words">{content.cardName}</div>
+                                  <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{content.cardType}</div>
                                 </div>
-                              </div>
-                              {/* Card Image */}
-                              {content.imageUrl && (
-                                <div className="flex justify-center my-4">
-                                  <img
-                                    src={content.imageUrl}
-                                    alt={content.cardName}
-                                    className="max-w-full max-h-64 rounded-lg shadow-md border border-[var(--border-primary)]"
-                                    style={{ objectFit: 'contain' }}
-                                  />
+                                {/* Oracle Text */}
+                                <div>
+                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1">Oracle Text</div>
+                                  <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md">
+                                    {content.oracleText.replace(/^Image:\s*/i, '')}
+                                  </div>
                                 </div>
-                              )}
-                              {/* Explanation */}
-                              {content.explanation && (
-                                <div className="mb-3">
-                                  <div className="font-mtg text-[var(--text-accent)] text-base mb-1 mt-2">Explanation</div>
-                                  <div className="font-mtg-body text-base leading-relaxed">
+                                {/* Explanation */}
+                                <div>
+                                  <div className="font-bold text-[var(--text-accent)] mb-1">Explanation</div>
+                                  <div className="font-mtg-body leading-relaxed max-w-prose break-words">
                                     {content.explanation}
                                   </div>
                                 </div>
-                              )}
-                              {/* Citations */}
-                              {Array.isArray(content.citations) && content.citations.length > 0 && (
-                                <div className="mt-4">
-                                  <div className="font-mtg text-[var(--text-accent)] text-base mb-1">Citations</div>
-                                  <div className="flex flex-col gap-2">
-                                    {['rule', 'ruling'].map(type => (
-                                      <div key={type}>
-                                        {content.citations.filter(c => c.type === type).length > 0 && (
-                                          <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
-                                        )}
-                                        <ul className="list-disc pl-6">
-                                          {content.citations.filter(c => c.type === type).map((c, i) => (
-                                            <li key={i} className="mb-1">
-                                              <span className="font-semibold text-[var(--text-accent)]">
-                                                {c.id ? `#${c.id}` : c.source ? c.source : ''}
-                                              </span>
-                                              {c.id || c.source ? ': ' : ''}
-                                              <span className="text-[var(--text-primary)]">{c.text}</span>
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    ))}
+                                {/* Citations */}
+                                {Array.isArray(content.citations) && content.citations.length > 0 && (
+                                  <div>
+                                    <div className="font-bold text-[var(--text-accent)] mb-1">Citations</div>
+                                    <div className="flex flex-col gap-2">
+                                      {content.citations.map((c, i) => (
+                                        <div key={i} className="bg-black/10 rounded p-2">
+                                          <div className="font-mtg-body text-xs text-[var(--text-muted)] mb-1">
+                                            {c.type ? (c.type.charAt(0).toUpperCase() + c.type.slice(1)) : ''}
+                                            {c.id ? `: ${c.id}` : c.source ? `: ${c.source}` : ''}
+                                          </div>
+                                          <div className="text-sm text-[var(--text-primary)] leading-snug break-words">{c.text}</div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
+                                )}
+                              </div>
+                              {/* Right: Card Image (desktop), stacked on mobile */}
+                              {content.imageUrl && (
+                                <div className="flex-shrink-0 w-full sm:w-48 flex justify-center items-start mt-2 sm:mt-0">
+                                  <img
+                                    src={content.imageUrl}
+                                    alt={content.cardName}
+                                    className="rounded-lg shadow-md border border-[var(--border-primary)] max-w-full sm:max-w-[12rem] h-auto object-contain"
+                                    style={{ background: 'rgba(0,0,0,0.03)' }}
+                                  />
                                 </div>
                               )}
                             </div>
