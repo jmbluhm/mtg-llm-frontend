@@ -338,9 +338,9 @@ function MTGChatContent() {
                         (() => {
                           const content = message.content;
                           return (
-                            <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col gap-4 sm:flex-row sm:items-start">
+                            <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col sm:flex-row sm:items-start gap-4">
                               {/* Left: Text sections */}
-                              <div className="flex-1 flex flex-col gap-3 min-w-0">
+                              <div className="flex-1 flex flex-col space-y-4 min-w-0">
                                 {/* Card Name and Type */}
                                 <div>
                                   <div className="font-mtg font-bold text-2xl mb-1 break-words">{content.cardName}</div>
@@ -348,14 +348,14 @@ function MTGChatContent() {
                                 </div>
                                 {/* Oracle Text */}
                                 <div>
-                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1">Oracle Text</div>
-                                  <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md">
+                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2">Oracle Text</div>
+                                  <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
                                     {content.oracleText.replace(/^Image:\s*/i, '')}
                                   </div>
                                 </div>
                                 {/* Explanation */}
                                 <div>
-                                  <div className="font-bold text-[var(--text-accent)] mb-1">Explanation</div>
+                                  <div className="font-bold text-[var(--text-accent)] mb-2 mt-2">Explanation</div>
                                   <div className="font-mtg-body leading-relaxed max-w-prose break-words">
                                     {content.explanation}
                                   </div>
@@ -363,10 +363,10 @@ function MTGChatContent() {
                                 {/* Citations */}
                                 {Array.isArray(content.citations) && content.citations.length > 0 && (
                                   <div>
-                                    <div className="font-bold text-[var(--text-accent)] mb-1">Citations</div>
+                                    <div className="font-bold text-[var(--text-accent)] mb-2 mt-2">Citations</div>
                                     <div className="flex flex-col gap-2">
                                       {content.citations.map((c, i) => (
-                                        <div key={i} className="bg-black/10 rounded p-2">
+                                        <div key={i} className="bg-black/10 rounded p-2 mb-2">
                                           <div className="font-mtg-body text-xs text-[var(--text-muted)] mb-1">
                                             {c.type ? (c.type.charAt(0).toUpperCase() + c.type.slice(1)) : ''}
                                             {c.id ? `: ${c.id}` : c.source ? `: ${c.source}` : ''}
@@ -380,7 +380,7 @@ function MTGChatContent() {
                               </div>
                               {/* Right: Card Image (desktop), stacked on mobile */}
                               {content.imageUrl && (
-                                <div className="flex-shrink-0 w-full sm:w-48 flex justify-center items-start mt-2 sm:mt-0">
+                                <div className="flex-shrink-0 w-full sm:w-48 flex justify-center items-start mt-2 sm:mt-0 ml-0 sm:ml-4">
                                   <img
                                     src={content.imageUrl}
                                     alt={content.cardName}
