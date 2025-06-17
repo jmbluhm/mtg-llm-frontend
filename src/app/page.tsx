@@ -335,64 +335,69 @@ function MTGChatContent() {
                     <div className="ml-14 text-[var(--text-primary)]">
                       {/* New assistant card format */}
                       {message.role === 'assistant' && typeof message.content === 'object' && message.content && message.content.cardName ? (
-                        <div className="assistant-card-content">
-                          {/* Card Name and Type */}
-                          <div className="font-mtg font-bold text-xl mb-1">{message.content.cardName}</div>
-                          <div className="text-sm text-[var(--text-muted)] mb-3">{message.content.cardType}</div>
-                          {/* Oracle Text */}
-                          <div className="mb-3">
-                            <div className="font-mtg text-[var(--text-accent)] text-sm mb-1">Oracle Text</div>
-                            <div className="bg-[var(--bg-secondary)] rounded px-3 py-2 font-mono text-sm border border-[var(--border-secondary)] whitespace-pre-line">
-                              {message.content.oracleText}
-                            </div>
-                          </div>
-                          {/* Card Image */}
-                          {message.content.imageUrl && (
-                            <div className="flex justify-center my-4">
-                              <img
-                                src={message.content.imageUrl}
-                                alt={message.content.cardName}
-                                className="max-w-full max-h-64 rounded-lg shadow-md border border-[var(--border-primary)]"
-                                style={{ objectFit: 'contain' }}
-                              />
-                            </div>
-                          )}
-                          {/* Explanation */}
-                          {message.content.explanation && (
-                            <div className="mb-3">
-                              <div className="font-mtg text-[var(--text-accent)] text-base mb-1 mt-2">Explanation</div>
-                              <div className="font-mtg-body text-base leading-relaxed">
-                                {message.content.explanation}
+                        (() => {
+                          const content = message.content;
+                          return (
+                            <div className="assistant-card-content">
+                              {/* Card Name and Type */}
+                              <div className="font-mtg font-bold text-xl mb-1">{content.cardName}</div>
+                              <div className="text-sm text-[var(--text-muted)] mb-3">{content.cardType}</div>
+                              {/* Oracle Text */}
+                              <div className="mb-3">
+                                <div className="font-mtg text-[var(--text-accent)] text-sm mb-1">Oracle Text</div>
+                                <div className="bg-[var(--bg-secondary)] rounded px-3 py-2 font-mono text-sm border border-[var(--border-secondary)] whitespace-pre-line">
+                                  {content.oracleText}
+                                </div>
                               </div>
-                            </div>
-                          )}
-                          {/* Citations */}
-                          {Array.isArray(message.content.citations) && message.content.citations.length > 0 && (
-                            <div className="mt-4">
-                              <div className="font-mtg text-[var(--text-accent)] text-base mb-1">Citations</div>
-                              <div className="flex flex-col gap-2">
-                                {['rule', 'ruling'].map(type => (
-                                  <div key={type}>
-                                    {message.content.citations.filter(c => c.type === type).length > 0 && (
-                                      <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
-                                    )}
-                                    <ul className="list-disc pl-6">
-                                      {message.content.citations.filter(c => c.type === type).map((c, i) => (
-                                        <li key={i} className="mb-1">
-                                          <span className="font-semibold text-[var(--text-accent)]">
-                                            {c.id ? `#${c.id}` : c.source ? c.source : ''}
-                                          </span>
-                                          {c.id || c.source ? ': ' : ''}
-                                          <span className="text-[var(--text-primary)]">{c.text}</span>
-                                        </li>
-                                      ))}
-                                    </ul>
+                              {/* Card Image */}
+                              {content.imageUrl && (
+                                <div className="flex justify-center my-4">
+                                  <img
+                                    src={content.imageUrl}
+                                    alt={content.cardName}
+                                    className="max-w-full max-h-64 rounded-lg shadow-md border border-[var(--border-primary)]"
+                                    style={{ objectFit: 'contain' }}
+                                  />
+                                </div>
+                              )}
+                              {/* Explanation */}
+                              {content.explanation && (
+                                <div className="mb-3">
+                                  <div className="font-mtg text-[var(--text-accent)] text-base mb-1 mt-2">Explanation</div>
+                                  <div className="font-mtg-body text-base leading-relaxed">
+                                    {content.explanation}
                                   </div>
-                                ))}
-                              </div>
+                                </div>
+                              )}
+                              {/* Citations */}
+                              {Array.isArray(content.citations) && content.citations.length > 0 && (
+                                <div className="mt-4">
+                                  <div className="font-mtg text-[var(--text-accent)] text-base mb-1">Citations</div>
+                                  <div className="flex flex-col gap-2">
+                                    {['rule', 'ruling'].map(type => (
+                                      <div key={type}>
+                                        {content.citations.filter(c => c.type === type).length > 0 && (
+                                          <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
+                                        )}
+                                        <ul className="list-disc pl-6">
+                                          {content.citations.filter(c => c.type === type).map((c, i) => (
+                                            <li key={i} className="mb-1">
+                                              <span className="font-semibold text-[var(--text-accent)]">
+                                                {c.id ? `#${c.id}` : c.source ? c.source : ''}
+                                              </span>
+                                              {c.id || c.source ? ': ' : ''}
+                                              <span className="text-[var(--text-primary)]">{c.text}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                          );
+                        })()
                       ) : (
                         // Fallback: legacy markdown rendering
                         message.role === 'user' ? (
@@ -451,7 +456,7 @@ function MTGChatContent() {
             You can reference mana symbols like {'{'}G{'}'}, {'{'}U{'}'}, {'{'}R{'}'}, {'{'}W{'}'}, {'{'}B{'}'} in your messages
           </p>
           <div className="flex justify-center items-center gap-2 mt-2 opacity-60">
-            <span className="text-xs text-[var(--text-muted)]">Powered by arcane algorithms</span>
+            <span className="text-xs text-[var(--text-muted)]">Powered by Prodigy Partners</span>
           </div>
         </div>
       </div>
