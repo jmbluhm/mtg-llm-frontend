@@ -341,29 +341,42 @@ function MTGChatContent() {
                             <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col sm:flex-row sm:items-start gap-4">
                               {/* Left: Text sections */}
                               <div className="flex-1 flex flex-col space-y-4 min-w-0">
-                                {/* Card Name and Type */}
-                                <div>
-                                  <div className="font-mtg font-bold text-2xl mb-1 break-words">{content.cardName}</div>
-                                  <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{content.cardType}</div>
-                                </div>
+                                {/* Card Name */}
+                                {content.cardName && (
+                                  <div>
+                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1">Card Name</div>
+                                    <div className="font-mtg font-bold text-2xl mb-1 break-words">{content.cardName}</div>
+                                  </div>
+                                )}
+                                {/* Card Type */}
+                                {content.cardType && (
+                                  <div>
+                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1 mt-2">Card Type</div>
+                                    <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{content.cardType}</div>
+                                  </div>
+                                )}
                                 {/* Oracle Text */}
-                                <div>
-                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2">Oracle Text</div>
-                                  <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
-                                    {content.oracleText.replace(/^Image:\s*/i, '')}
+                                {content.oracleText && (
+                                  <div>
+                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Oracle Text</div>
+                                    <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
+                                      {content.oracleText.replace(/^Image:\s*/i, '')}
+                                    </div>
                                   </div>
-                                </div>
+                                )}
                                 {/* Explanation */}
-                                <div>
-                                  <div className="font-bold text-[var(--text-accent)] mb-2 mt-2">Explanation</div>
-                                  <div className="font-mtg-body leading-relaxed max-w-prose break-words">
-                                    {content.explanation}
+                                {content.explanation && (
+                                  <div>
+                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Explanation</div>
+                                    <div className="font-mtg-body leading-relaxed max-w-prose break-words">
+                                      {content.explanation}
+                                    </div>
                                   </div>
-                                </div>
+                                )}
                                 {/* Citations */}
                                 {Array.isArray(content.citations) && content.citations.length > 0 && (
                                   <div>
-                                    <div className="font-bold text-[var(--text-accent)] mb-2 mt-2">Citations</div>
+                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Citations</div>
                                     <div className="flex flex-col gap-2">
                                       {content.citations.map((c, i) => (
                                         <div key={i} className="bg-black/10 rounded p-2 mb-2">
@@ -380,7 +393,8 @@ function MTGChatContent() {
                               </div>
                               {/* Right: Card Image (desktop), stacked on mobile */}
                               {content.imageUrl && (
-                                <div className="flex-shrink-0 w-full sm:w-48 flex justify-center items-start mt-2 sm:mt-0 ml-0 sm:ml-4">
+                                <div className="flex-shrink-0 w-full sm:w-48 flex flex-col items-center mt-2 sm:mt-0 ml-0 sm:ml-4">
+                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2">Image</div>
                                   <img
                                     src={content.imageUrl}
                                     alt={content.cardName}
