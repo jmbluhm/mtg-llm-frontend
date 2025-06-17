@@ -52,23 +52,26 @@ export async function sendMessage(message: string, sessionId: string): Promise<{
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Response error text:', errorText);
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    const text = await response.text();
+    if (!text) {
+      throw new Error('Empty response from backend');
     }
-
-    const responseData = await response.json();
-    console.log('Response data:', responseData);
+    let responseData;
+    try {
+      responseData = JSON.parse(text);
+    } catch (err) {
+      throw new Error('Invalid JSON response from backend');
+    }
 
     // Expect an array of assistant messages
     if (Array.isArray(responseData)) {
-      return { 
-        success: true, 
+      return {
+        success: true,
         assistantMessages: responseData.map(msg => ({
           id: msg.id,
-          role: 'assistant' as const,
-          response: msg.response
+          role: msg.role,
+          response: msg.response,
+          content: msg.content
         }))
       };
     }
@@ -76,18 +79,18 @@ export async function sendMessage(message: string, sessionId: string): Promise<{
     return { success: true, assistantMessages: [] };
   } catch (error) {
     console.error('Error sending message:', error);
-    
+
     // More specific error messages
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      return { 
-        success: false, 
-        error: 'Network error: Unable to connect to the webhook. This might be a CORS issue or network connectivity problem.' 
+      return {
+        success: false,
+        error: 'Network error: Unable to connect to the webhook. This might be a CORS issue or network connectivity problem.'
       };
     }
-    
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Failed to send message' 
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to send message'
     };
   }
 } 
