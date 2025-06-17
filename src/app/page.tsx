@@ -351,7 +351,7 @@ function MTGChatContent() {
                         ) : null}
                       </div>
                       <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
-                        {message.role === 'user' ? 'Planeswalker' : 'Oracle of the Multiverse'}
+                        {message.role === 'user' ? 'Human' : 'Oracle of the Multiverse'}
                       </div>
                     </div>
                     <div className="ml-14 text-[var(--text-primary)]">
