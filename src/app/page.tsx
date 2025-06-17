@@ -231,18 +231,32 @@ function MTGChatContent() {
   };
 
   // Helper type guard for structured ruling format
-  function isStructuredRuling(content: any): content is {
+  function isStructuredRuling(
+    content: unknown
+  ): content is {
     overallExplanation: string;
     cards: Array<{ name: string; type: string; oracleText: string; imageUrl: string }>;
     citations: Array<{ type: 'rule' | 'ruling'; id?: string; source?: string; text: string }>;
   } {
-    return (
-      content &&
+    if (
       typeof content === 'object' &&
-      typeof content.overallExplanation === 'string' &&
-      Array.isArray(content.cards) &&
-      Array.isArray(content.citations)
-    );
+      content !== null &&
+      'overallExplanation' in content &&
+      'cards' in content &&
+      'citations' in content
+    ) {
+      const c = content as {
+        overallExplanation: unknown;
+        cards: unknown;
+        citations: unknown;
+      };
+      return (
+        typeof c.overallExplanation === 'string' &&
+        Array.isArray(c.cards) &&
+        Array.isArray(c.citations)
+      );
+    }
+    return false;
   }
 
   return (
@@ -392,13 +406,13 @@ function MTGChatContent() {
                                 <div>
                                   <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Citations</div>
                                   <div className="flex flex-col gap-2">
-                                    {['rule', 'ruling'].map(type => (
+                                    {(['rule', 'ruling'] as const).map(type => (
                                       <div key={type}>
-                                        {content.citations.filter((c: any) => c.type === type).length > 0 && (
+                                        {content.citations.filter((c) => c.type === type).length > 0 && (
                                           <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
                                         )}
                                         <ul className="list-disc pl-6">
-                                          {content.citations.filter((c: any) => c.type === type).map((c: any, i: number) => (
+                                          {content.citations.filter((c) => c.type === type).map((c, i) => (
                                             <li key={i} className="mb-1">
                                               <span className="font-semibold text-[var(--text-accent)]">
                                                 {c.id ? `#${c.id}` : c.source ? c.source : ''}
