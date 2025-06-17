@@ -230,6 +230,21 @@ function MTGChatContent() {
     );
   };
 
+  // Helper type guard for structured ruling format
+  function isStructuredRuling(content: any): content is {
+    overallExplanation: string;
+    cards: Array<{ name: string; type: string; oracleText: string; imageUrl: string }>;
+    citations: Array<{ type: 'rule' | 'ruling'; id?: string; source?: string; text: string }>;
+  } {
+    return (
+      content &&
+      typeof content === 'object' &&
+      typeof content.overallExplanation === 'string' &&
+      Array.isArray(content.cards) &&
+      Array.isArray(content.citations)
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col font-mtg-body bg-[var(--bg-primary)]">
       {/* Floating Mana Particles - Client Side Only */}
@@ -333,74 +348,69 @@ function MTGChatContent() {
                       </div>
                     </div>
                     <div className="ml-14 text-[var(--text-primary)]">
-                      {/* New assistant card format */}
-                      {message.role === 'assistant' && typeof message.content === 'object' && message.content && message.content.cardName ? (
+                      {/* New structured ruling format */}
+                      {isStructuredRuling(message.content) ? (
                         (() => {
                           const content = message.content;
                           return (
-                            <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col sm:flex-row sm:items-start gap-4">
-                              {/* Left: Text sections */}
-                              <div className="flex-1 flex flex-col space-y-4 min-w-0">
-                                {/* Card Name */}
-                                {content.cardName && (
-                                  <div>
-                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1">Card Name</div>
-                                    <div className="font-mtg font-bold text-2xl mb-1 break-words">{content.cardName}</div>
-                                  </div>
-                                )}
-                                {/* Card Type */}
-                                {content.cardType && (
-                                  <div>
-                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1 mt-2">Card Type</div>
-                                    <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{content.cardType}</div>
-                                  </div>
-                                )}
-                                {/* Oracle Text */}
-                                {content.oracleText && (
-                                  <div>
-                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Oracle Text</div>
-                                    <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
-                                      {content.oracleText.replace(/^Image:\s*/i, '')}
-                                    </div>
-                                  </div>
-                                )}
-                                {/* Explanation */}
-                                {content.explanation && (
-                                  <div>
-                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Explanation</div>
-                                    <div className="font-mtg-body leading-relaxed max-w-prose break-words">
-                                      {content.explanation}
-                                    </div>
-                                  </div>
-                                )}
-                                {/* Citations */}
-                                {Array.isArray(content.citations) && content.citations.length > 0 && (
-                                  <div>
-                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Citations</div>
-                                    <div className="flex flex-col gap-2">
-                                      {content.citations.map((c, i) => (
-                                        <div key={i} className="bg-black/10 rounded p-2 mb-2">
-                                          <div className="font-mtg-body text-xs text-[var(--text-muted)] mb-1">
-                                            {c.type ? (c.type.charAt(0).toUpperCase() + c.type.slice(1)) : ''}
-                                            {c.id ? `: ${c.id}` : c.source ? `: ${c.source}` : ''}
-                                          </div>
-                                          <div className="text-sm text-[var(--text-primary)] leading-snug break-words">{c.text}</div>
+                            <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col space-y-6">
+                              {/* Top summary */}
+                              {content.overallExplanation && (
+                                <div className="bg-yellow-900/20 border-l-4 border-yellow-500 p-3 rounded mb-2 max-w-prose text-base font-mtg-body text-[var(--text-accent)]">
+                                  {content.overallExplanation}
+                                </div>
+                              )}
+                              {/* Cards list */}
+                              {content.cards.length > 0 && (
+                                <div className="flex flex-col gap-6">
+                                  {content.cards.map((card: { name: string; type: string; oracleText: string; imageUrl: string }, idx: number) => (
+                                    <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-4">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-xl font-mtg mb-1 break-words">{card.name}</div>
+                                        <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{card.type}</div>
+                                        <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1 mt-2">Oracle Text</div>
+                                        <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
+                                          {card.oracleText}
                                         </div>
-                                      ))}
+                                      </div>
+                                      {card.imageUrl && (
+                                        <div className="flex-shrink-0 w-full sm:w-48 flex flex-col items-center mt-2 sm:mt-0 ml-0 sm:ml-4">
+                                          <img
+                                            src={card.imageUrl}
+                                            alt={card.name}
+                                            className="rounded-lg shadow-md border border-[var(--border-primary)] max-w-full sm:max-w-[12rem] h-auto object-contain"
+                                            style={{ background: 'rgba(0,0,0,0.03)' }}
+                                          />
+                                        </div>
+                                      )}
                                     </div>
+                                  ))}
+                                </div>
+                              )}
+                              {/* Citations */}
+                              {content.citations.length > 0 && (
+                                <div>
+                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Citations</div>
+                                  <div className="flex flex-col gap-2">
+                                    {['rule', 'ruling'].map(type => (
+                                      <div key={type}>
+                                        {content.citations.filter((c: any) => c.type === type).length > 0 && (
+                                          <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
+                                        )}
+                                        <ul className="list-disc pl-6">
+                                          {content.citations.filter((c: any) => c.type === type).map((c: any, i: number) => (
+                                            <li key={i} className="mb-1">
+                                              <span className="font-semibold text-[var(--text-accent)]">
+                                                {c.id ? `#${c.id}` : c.source ? c.source : ''}
+                                              </span>
+                                              {c.id || c.source ? ': ' : ''}
+                                              <span className="text-[var(--text-primary)]">{c.text}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
                                   </div>
-                                )}
-                              </div>
-                              {/* Right: Card Image (desktop), stacked on mobile */}
-                              {content.imageUrl && (
-                                <div className="flex-shrink-0 w-full sm:w-48 flex flex-col items-center mt-2 sm:mt-0 ml-0 sm:ml-4">
-                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2">Image</div>
-                                  <img
-                                    src={content.imageUrl}
-                                    alt={content.cardName}
-                                    className="rounded-lg shadow-md border border-[var(--border-primary)] max-w-full sm:max-w-[12rem] h-auto object-contain"
-                                    style={{ background: 'rgba(0,0,0,0.03)' }}
-                                  />
                                 </div>
                               )}
                             </div>
