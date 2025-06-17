@@ -241,8 +241,8 @@ function MTGChatContent() {
       if (
         typeof content === 'object' &&
         content !== null &&
-        typeof (content as any).overallExplanation === 'string' &&
-        Array.isArray((content as any).cards)
+        typeof (content as { overallExplanation?: unknown }).overallExplanation === 'string' &&
+        Array.isArray((content as { cards?: unknown }).cards)
       ) {
         return true;
       }
@@ -357,8 +357,9 @@ function MTGChatContent() {
                     <div className="ml-14 text-[var(--text-primary)]">
                       {/* New structured ruling format */}
                       {(() => {
-                        console.log('message.content', message.content);
-                        console.log('isStructuredRuling', isStructuredRuling(message.content));
+                        // Debug logs can be removed for production
+                        // console.log('message.content', message.content);
+                        // console.log('isStructuredRuling', isStructuredRuling(message.content));
                         return isStructuredRuling(message.content) ? (
                           (() => {
                             const content = message.content;
@@ -374,7 +375,7 @@ function MTGChatContent() {
                                 {/* Cards list */}
                                 {content.cards.length > 0 && (
                                   <div className="flex flex-col gap-6">
-                                    {content.cards.map((card: { name: string; type: string; oracleText: string; imageUrl: string }, idx: number) => (
+                                    {content.cards.map((card, idx) => (
                                       <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                           <div className="font-bold text-xl font-mtg mb-1 break-words">{card.name}</div>
