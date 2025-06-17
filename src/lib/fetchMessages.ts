@@ -3,15 +3,29 @@ export interface Message {
   role: 'user' | 'assistant';
   text?: string;
   response?: string;
+  content?: AssistantContent;
+}
+
+export interface AssistantContent {
+  cardName: string;
+  cardType: string;
+  oracleText: string;
+  imageUrl: string;
+  explanation: string;
+  citations: Array<{ type: 'rule' | 'ruling'; id?: string; source?: string; text: string }>;
 }
 
 export interface AssistantResponse {
   id: string;
   role: 'assistant';
-  response: string;
+  response?: string;
+  content?: AssistantContent;
 }
 
-const WEBHOOK_URL = 'https://jordanb.app.n8n.cloud/webhook/message-from-user';
+const WEBHOOK_URL =
+  process.env.NODE_ENV === 'development'
+    ? 'https://jordanb.app.n8n.cloud/webhook-test/message-from-user'
+    : 'https://jordanb.app.n8n.cloud/webhook/message-from-user';
 
 export async function sendMessage(message: string, sessionId: string): Promise<{ success: boolean; assistantMessages?: AssistantResponse[]; error?: string }> {
   try {

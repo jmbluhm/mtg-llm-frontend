@@ -231,10 +231,10 @@ function MTGChatContent() {
   };
 
   return (
-    <div className="min-h-screen p-6 font-mtg-body">
+    <div className="min-h-screen flex flex-col font-mtg-body bg-[var(--bg-primary)]">
       {/* Floating Mana Particles - Client Side Only */}
       {isClient && (
-        <div className="fixed inset-0 pointer-events-none">
+        <div className="fixed inset-0 pointer-events-none z-0">
           {[...Array(12)].map((_, i) => (
             <div
               key={i}
@@ -249,19 +249,17 @@ function MTGChatContent() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        {/* Enhanced Header Card */}
+      {/* Header */}
+      <div className="max-w-4xl w-full mx-auto space-y-8 relative z-10">
         <div className="mtg-card relative">
           <div className="mtg-card-inner mtg-card-header text-center">
             <div className="flex justify-between items-start mb-8">
               <div className="w-10"></div> {/* Spacer */}
               <div className="flex-1">
                 <div className="flex items-center justify-center gap-4 mb-2">
-                  
                   <h1 className="text-4xl font-mtg-decorative mtg-title">
                     CommanderGPT
                   </h1>
-                  
                 </div>
                 <h2 className="text-lg font-mtg-body mtg-subtitle mb-4 font-normal">
                   Neither friend nor foe, your MTG AI Companion
@@ -272,73 +270,132 @@ function MTGChatContent() {
                 <ThemeToggle />
               </div>
             </div>
-            {/* Enhanced gradient border */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-60"></div>
           </div>
         </div>
+      </div>
 
-        {/* Enhanced Chat Messages Card */}
-        <div className="mtg-card">
-          <div className="mtg-card-inner min-h-96">
-            <div className="space-y-0">
-              {messages.length === 0 && !loading && (
-                <div className="text-center py-16">
-                  <div className="mb-6">
-                    <img 
-                      src="/iconTransparent.png" 
-                      alt="Oracle Symbol" 
-                      className="w-16 h-16 mx-auto opacity-60 mb-4"
-                    />
-                    <h3 className="text-xl font-mtg text-[var(--text-accent)] mb-4">Welcome, Human</h3>
-                    <p className="text-[var(--text-secondary)] font-mtg-body text-lg leading-relaxed max-w-md mx-auto">
-                      Ask me about cards, rules, strategies, or the lore of the multiverse. 
-                      I am your arcane companion through the realms of Magic.
-                    </p>
-                  </div>
+      {/* Chat area */}
+      <div className="flex-1 flex flex-col max-w-4xl w-full mx-auto px-0 sm:px-4 pt-4 pb-28 overflow-y-auto z-10">
+        <div className="flex-1 flex flex-col justify-end">
+          <div className="space-y-0">
+            {messages.length === 0 && !loading && (
+              <div className="text-center py-8 welcome-message-compact">
+                <div className="mb-6">
+                  <img 
+                    src="/iconTransparent.png" 
+                    alt="Oracle Symbol" 
+                    className="oracle-symbol-mobile w-16 h-16 mx-auto opacity-60 mb-4"
+                  />
+                  <h3 className="text-xl font-mtg text-[var(--text-accent)] mb-4">Welcome, Human</h3>
+                  <p className="text-[var(--text-secondary)] font-mtg-body text-lg leading-relaxed max-w-md mx-auto">
+                    Ask me about cards, rules, strategies, or the lore of the multiverse. 
+                    I am your arcane companion through the realms of Magic.
+                  </p>
                 </div>
-              )}
-              {messages.map((message, index) => {
-                const prevMessage = index > 0 ? messages[index - 1] : null;
-                const isRoleChange = prevMessage && prevMessage.role !== message.role;
-                const marginClass = index === 0 ? '' : isRoleChange ? 'mt-10 sm:mt-12' : 'mt-6 sm:mt-8';
-                
-                return (
-                  <div key={message.id}>
-                    {/* Subtle divider for role changes */}
-                    {isRoleChange && (
-                      <div className="flex items-center justify-center my-8 sm:my-10">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
-                        <div className="mx-4">
-                          <div className="w-2 h-2 rounded-full bg-[var(--border-accent)] opacity-40"></div>
-                        </div>
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+              </div>
+            )}
+            {messages.map((message, index) => {
+              const prevMessage = index > 0 ? messages[index - 1] : null;
+              const isRoleChange = prevMessage && prevMessage.role !== message.role;
+              const marginClass = index === 0 ? '' : isRoleChange ? 'mt-10 sm:mt-12' : 'mt-6 sm:mt-8';
+              return (
+                <div key={message.id}>
+                  {isRoleChange && (
+                    <div className="flex items-center justify-center my-8 sm:my-10">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                      <div className="mx-4">
+                        <div className="w-2 h-2 rounded-full bg-[var(--border-accent)] opacity-40"></div>
                       </div>
-                    )}
-                    
-                    <div
-                      className={`message-bubble text-lg mb-8 ${marginClass} ${
-                        message.role === 'user' ? 'message-user' : 'message-assistant'
-                      }`}
-                      aria-label={message.role === 'user' ? 'User message' : 'Oracle response'}
-                    >
-                      <div className="flex items-center mb-4">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0"
-                             style={{
-                               background: message.role === 'user' 
-                                 ? 'linear-gradient(135deg, #3b82f6, #1e40af)' 
-                                 : 'linear-gradient(135deg, #10b981, #059669)',
-                               color: 'white'
-                             }}>
-                          {message.role === 'user' ? (
-                            <span className="text-xs"></span>
-                          ) : null}
-                        </div>
-                        <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
-                          {message.role === 'user' ? 'Planeswalker' : 'Oracle of the Multiverse'}
-                        </div>
-                      </div>
-                      <div className="ml-14 text-[var(--text-primary)]">
+                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                    </div>
+                  )}
+                  <div
+                    className={`message-bubble text-lg mb-8 ${marginClass} ${
+                      message.role === 'user' ? 'message-user' : 'message-assistant'
+                    }`}
+                    aria-label={message.role === 'user' ? 'User message' : 'Oracle response'}
+                  >
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0"
+                        style={{
+                          background: message.role === 'user' 
+                            ? 'linear-gradient(135deg, #3b82f6, #1e40af)' 
+                            : 'linear-gradient(135deg, #10b981, #059669)',
+                          color: 'white'
+                        }}>
                         {message.role === 'user' ? (
+                          <span className="text-xs"></span>
+                        ) : null}
+                      </div>
+                      <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
+                        {message.role === 'user' ? 'Planeswalker' : 'Oracle of the Multiverse'}
+                      </div>
+                    </div>
+                    <div className="ml-14 text-[var(--text-primary)]">
+                      {/* New assistant card format */}
+                      {message.role === 'assistant' && typeof message.content === 'object' && message.content && message.content.cardName ? (
+                        <div className="assistant-card-content">
+                          {/* Card Name and Type */}
+                          <div className="font-mtg font-bold text-xl mb-1">{message.content.cardName}</div>
+                          <div className="text-sm text-[var(--text-muted)] mb-3">{message.content.cardType}</div>
+                          {/* Oracle Text */}
+                          <div className="mb-3">
+                            <div className="font-mtg text-[var(--text-accent)] text-sm mb-1">Oracle Text</div>
+                            <div className="bg-[var(--bg-secondary)] rounded px-3 py-2 font-mono text-sm border border-[var(--border-secondary)] whitespace-pre-line">
+                              {message.content.oracleText}
+                            </div>
+                          </div>
+                          {/* Card Image */}
+                          {message.content.imageUrl && (
+                            <div className="flex justify-center my-4">
+                              <img
+                                src={message.content.imageUrl}
+                                alt={message.content.cardName}
+                                className="max-w-full max-h-64 rounded-lg shadow-md border border-[var(--border-primary)]"
+                                style={{ objectFit: 'contain' }}
+                              />
+                            </div>
+                          )}
+                          {/* Explanation */}
+                          {message.content.explanation && (
+                            <div className="mb-3">
+                              <div className="font-mtg text-[var(--text-accent)] text-base mb-1 mt-2">Explanation</div>
+                              <div className="font-mtg-body text-base leading-relaxed">
+                                {message.content.explanation}
+                              </div>
+                            </div>
+                          )}
+                          {/* Citations */}
+                          {Array.isArray(message.content.citations) && message.content.citations.length > 0 && (
+                            <div className="mt-4">
+                              <div className="font-mtg text-[var(--text-accent)] text-base mb-1">Citations</div>
+                              <div className="flex flex-col gap-2">
+                                {['rule', 'ruling'].map(type => (
+                                  <div key={type}>
+                                    {message.content.citations.filter(c => c.type === type).length > 0 && (
+                                      <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
+                                    )}
+                                    <ul className="list-disc pl-6">
+                                      {message.content.citations.filter(c => c.type === type).map((c, i) => (
+                                        <li key={i} className="mb-1">
+                                          <span className="font-semibold text-[var(--text-accent)]">
+                                            {c.id ? `#${c.id}` : c.source ? c.source : ''}
+                                          </span>
+                                          {c.id || c.source ? ': ' : ''}
+                                          <span className="text-[var(--text-primary)]">{c.text}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        // Fallback: legacy markdown rendering
+                        message.role === 'user' ? (
                           <div 
                             className="font-mtg-body leading-relaxed text-[1.05rem]"
                             dangerouslySetInnerHTML={{ 
@@ -347,93 +404,86 @@ function MTGChatContent() {
                           />
                         ) : (
                           <MarkdownRenderer content={message.response || ''} />
-                        )}
-                      </div>
+                        )
+                      )}
                     </div>
-                  </div>
-                );
-              })}
-              {loading && (
-                <div className={`message-bubble message-assistant text-lg p-6 mb-8 relative ${
-                  messages.length > 0 ? 'mt-10 sm:mt-12' : ''
-                }`}>
-                  {/* Divider for loading message if there are previous messages */}
-                  {messages.length > 0 && (
-                    <div className="flex items-center justify-center mb-8">
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
-                      <div className="mx-4">
-                        <div className="w-2 h-2 rounded-full bg-[var(--border-accent)] opacity-40"></div>
-                      </div>
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0"
-                         style={{
-                           background: 'linear-gradient(135deg, #10b981, #059669)',
-                           color: 'white'
-                         }}>
-                      <span className="sr-only">Loading</span>
-                      <span className="mana-spinner" aria-hidden="true"></span>
-                    </div>
-                    <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
-                      Oracle of the Multiverse
-                    </div>
-                  </div>
-                  <div className="ml-14 flex items-center text-[var(--text-secondary)] italic">
-                    <div className="mana-particle-trail"><span></span></div>
-                    Consulting the ancient tomes...
                   </div>
                 </div>
-              )}
-            </div>
+              );
+            })}
+            {loading && (
+              <div className={`message-bubble message-assistant text-lg p-6 mb-8 relative ${
+                messages.length > 0 ? 'mt-10 sm:mt-12' : ''
+              }`}>
+                {messages.length > 0 && (
+                  <div className="flex items-center justify-center mb-8">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                    <div className="mx-4">
+                      <div className="w-2 h-2 rounded-full bg-[var(--border-accent)] opacity-40"></div>
+                    </div>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[var(--border-secondary)] to-transparent opacity-30"></div>
+                  </div>
+                )}
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0"
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: 'white'
+                    }}>
+                    <span className="sr-only">Loading</span>
+                    <span className="mana-spinner" aria-hidden="true"></span>
+                  </div>
+                  <div className="font-mtg text-sm text-[var(--text-accent)] font-semibold">
+                    Oracle of the Multiverse
+                  </div>
+                </div>
+                <div className="ml-14 flex items-center text-[var(--text-secondary)] italic">
+                  <div className="mana-particle-trail"><span></span></div>
+                  Consulting the ancient tomes...
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Enhanced Input Card */}
-        <div className="mtg-card">
-          <div className="mtg-card-inner">
-            <form onSubmit={handleSendMessage} className="mb-6" aria-label="Send a message to the Oracle">
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  placeholder="Ask about a Magic card, rule, or strategy..."
-                  className="flex-1 mtg-input font-mtg-body text-[1.05rem]"
-                  disabled={loading}
-                  aria-label="Type your message"
-                />
-                <button
-                  type="submit"
-                  aria-label="Cast Spell"
-                  disabled={!inputMessage.trim() || loading}
-                  className={`flex-shrink-0 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center border-2 border-[var(--border-primary)] cursor-pointer outline-none ${
-                    loading 
-                      ? 'bg-[var(--border-secondary)] cursor-wait' 
-                      : 'mtg-send-button'
-                  }`}
-                  style={{ marginLeft: '1rem' }}
-                  title="Cast your inquiry into the aether"
-                >
-                  {loading && (
-                    <span className="mana-spinner" aria-hidden="true"></span>
-                  )}
-                </button>
-              </div>
-            </form>
-            <div className="text-center">
-              <p className="text-xs text-[var(--text-muted)] font-mtg-body italic">
-                You can reference mana symbols like {'{'}G{'}'}, {'{'}U{'}'}, {'{'}R{'}'}, {'{'}W{'}'}, {'{'}B{'}'} in your messages
-              </p>
-              <div className="flex justify-center items-center gap-2 mt-2 opacity-60">
-                <span className="text-xs text-[var(--text-muted)]">Powered by arcane algorithms</span>
-              </div>
-            </div>
+        {/* Mana symbol reference and powered by */}
+        <div className="text-center mt-4 mb-2">
+          <p className="text-xs text-[var(--text-muted)] font-mtg-body italic">
+            You can reference mana symbols like {'{'}G{'}'}, {'{'}U{'}'}, {'{'}R{'}'}, {'{'}W{'}'}, {'{'}B{'}'} in your messages
+          </p>
+          <div className="flex justify-center items-center gap-2 mt-2 opacity-60">
+            <span className="text-xs text-[var(--text-muted)]">Powered by arcane algorithms</span>
           </div>
         </div>
       </div>
+      {/* Input bar pinned to bottom */}
+      <form onSubmit={handleSendMessage} className="chat-input-bar w-full max-w-4xl mx-auto" aria-label="Send a message to the Oracle">
+        <div className="relative flex items-center p-2 bg-[var(--bg-primary)] rounded-t-lg border-t-2 border-[var(--border-primary)] shadow-lg">
+          <input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Ask about a Magic card, rule, or strategy..."
+            className="flex-1 mtg-input font-mtg-body text-[1.05rem] bg-transparent border-0 focus:ring-0 focus:outline-none"
+            disabled={loading}
+            aria-label="Type your message"
+          />
+          <button
+            type="submit"
+            aria-label="Cast Spell"
+            disabled={!inputMessage.trim() || loading}
+            className={`flex-shrink-0 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center border-2 border-[var(--border-primary)] cursor-pointer outline-none ml-4 ${
+              loading 
+                ? 'bg-[var(--border-secondary)] cursor-wait' 
+                : 'mtg-send-button'
+            }`}
+            title="Cast your inquiry into the aether"
+          >
+            {loading && (
+              <span className="mana-spinner" aria-hidden="true"></span>
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
