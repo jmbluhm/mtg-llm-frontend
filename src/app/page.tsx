@@ -232,28 +232,22 @@ function MTGChatContent() {
   };
 
   // Helper type guard for structured ruling format
-  function isStructuredRuling(
-    content: unknown
-  ): content is {
+  function isStructuredRuling(content: unknown): content is {
     overallExplanation: string;
     cards: Array<{ name: string; type: string; oracleText: string; imageUrl: string }>;
-    citations?: Array<{ type: 'rule' | 'ruling'; id?: string; source?: string; text: string }>;
+    citations?: Array<{ type: string; id?: string; source?: string; text: string }>;
   } {
-    if (
-      typeof content === 'object' &&
-      content !== null &&
-      'overallExplanation' in content &&
-      'cards' in content
-    ) {
-      const c = content as {
-        overallExplanation: unknown;
-        cards: unknown;
-        citations?: unknown;
-      };
-      return (
-        typeof c.overallExplanation === 'string' &&
-        Array.isArray(c.cards)
-      );
+    try {
+      if (
+        typeof content === 'object' &&
+        content !== null &&
+        typeof (content as any).overallExplanation === 'string' &&
+        Array.isArray((content as any).cards)
+      ) {
+        return true;
+      }
+    } catch {
+      return false;
     }
     return false;
   }
@@ -362,87 +356,91 @@ function MTGChatContent() {
                     </div>
                     <div className="ml-14 text-[var(--text-primary)]">
                       {/* New structured ruling format */}
-                      {isStructuredRuling(message.content) ? (
-                        (() => {
-                          const content = message.content;
-                          const citations = content.citations ?? [];
-                          return (
-                            <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col space-y-6">
-                              {/* Top summary */}
-                              {content.overallExplanation && (
-                                <div className="bg-yellow-900/20 border-l-4 border-yellow-500 p-3 rounded mb-2 max-w-prose text-base font-mtg-body text-[var(--text-accent)]">
-                                  {content.overallExplanation}
-                                </div>
-                              )}
-                              {/* Cards list */}
-                              {content.cards.length > 0 && (
-                                <div className="flex flex-col gap-6">
-                                  {content.cards.map((card: { name: string; type: string; oracleText: string; imageUrl: string }, idx: number) => (
-                                    <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-4">
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-xl font-mtg mb-1 break-words">{card.name}</div>
-                                        <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{card.type}</div>
-                                        <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1 mt-2">Oracle Text</div>
-                                        <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
-                                          {card.oracleText}
+                      {(() => {
+                        console.log('message.content', message.content);
+                        console.log('isStructuredRuling', isStructuredRuling(message.content));
+                        return isStructuredRuling(message.content) ? (
+                          (() => {
+                            const content = message.content;
+                            const citations = content.citations ?? [];
+                            return (
+                              <div className="assistant-card-content rounded-xl shadow-md p-4 bg-white/5 backdrop-blur border border-white/10 flex flex-col space-y-6">
+                                {/* Top summary */}
+                                {content.overallExplanation && (
+                                  <div className="bg-yellow-900/20 border-l-4 border-yellow-500 p-3 rounded mb-2 max-w-prose text-base font-mtg-body text-[var(--text-accent)]">
+                                    {content.overallExplanation}
+                                  </div>
+                                )}
+                                {/* Cards list */}
+                                {content.cards.length > 0 && (
+                                  <div className="flex flex-col gap-6">
+                                    {content.cards.map((card: { name: string; type: string; oracleText: string; imageUrl: string }, idx: number) => (
+                                      <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-4">
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-bold text-xl font-mtg mb-1 break-words">{card.name}</div>
+                                          <div className="text-sm italic text-[var(--text-muted)] mb-2 break-words">{card.type}</div>
+                                          <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-1 mt-2">Oracle Text</div>
+                                          <div className="border-l-4 border-orange-500 bg-[var(--bg-secondary)] px-3 py-1 font-mono text-sm whitespace-pre-line rounded-md mb-2">
+                                            {card.oracleText}
+                                          </div>
                                         </div>
-                                      </div>
-                                      {card.imageUrl && (
-                                        <div className="flex-shrink-0 w-full sm:w-48 flex flex-col items-center mt-2 sm:mt-0 ml-0 sm:ml-4">
-                                          <img
-                                            src={card.imageUrl}
-                                            alt={card.name}
-                                            className="rounded-lg shadow-md border border-[var(--border-primary)] max-w-full sm:max-w-[12rem] h-auto object-contain"
-                                            style={{ background: 'rgba(0,0,0,0.03)' }}
-                                          />
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {/* Citations */}
-                              {citations.length > 0 && (
-                                <div>
-                                  <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Citations</div>
-                                  <div className="flex flex-col gap-2">
-                                    {(['rule', 'ruling'] as const).map(type => (
-                                      <div key={type}>
-                                        {citations.filter((c) => c.type === type).length > 0 && (
-                                          <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
+                                        {card.imageUrl && (
+                                          <div className="flex-shrink-0 w-full sm:w-48 flex flex-col items-center mt-2 sm:mt-0 ml-0 sm:ml-4">
+                                            <img
+                                              src={card.imageUrl}
+                                              alt={card.name}
+                                              className="rounded-lg shadow-md border border-[var(--border-primary)] max-w-full sm:max-w-[12rem] h-auto object-contain"
+                                              style={{ background: 'rgba(0,0,0,0.03)' }}
+                                            />
+                                          </div>
                                         )}
-                                        <ul className="list-disc pl-6">
-                                          {citations.filter((c) => c.type === type).map((c, i) => (
-                                            <li key={i} className="mb-1">
-                                              <span className="font-semibold text-[var(--text-accent)]">
-                                                {c.id ? `#${c.id}` : c.source ? c.source : ''}
-                                              </span>
-                                              {c.id || c.source ? ': ' : ''}
-                                              <span className="text-[var(--text-primary)]">{c.text}</span>
-                                            </li>
-                                          ))}
-                                        </ul>
                                       </div>
                                     ))}
                                   </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })()
-                      ) : (
-                        // Fallback: legacy markdown rendering
-                        message.role === 'user' ? (
-                          <div 
-                            className="font-mtg-body leading-relaxed text-[1.05rem]"
-                            dangerouslySetInnerHTML={{ 
-                              __html: processManaSymbols(message.text || '') 
-                            }} 
-                          />
+                                )}
+                                {/* Citations */}
+                                {citations.length > 0 && (
+                                  <div>
+                                    <div className="font-bold uppercase text-xs tracking-wider text-[var(--text-accent)] mb-2 mt-2">Citations</div>
+                                    <div className="flex flex-col gap-2">
+                                      {(['rule', 'ruling'] as const).map(type => (
+                                        <div key={type}>
+                                          {citations.filter((c) => c.type === type).length > 0 && (
+                                            <div className="mb-1 font-mtg-body text-xs text-[var(--text-muted)] uppercase tracking-wider">{type === 'rule' ? 'Rules' : 'Rulings'}</div>
+                                          )}
+                                          <ul className="list-disc pl-6">
+                                            {citations.filter((c) => c.type === type).map((c, i) => (
+                                              <li key={i} className="mb-1">
+                                                <span className="font-semibold text-[var(--text-accent)]">
+                                                  {c.id ? `#${c.id}` : c.source ? c.source : ''}
+                                                </span>
+                                                {c.id || c.source ? ': ' : ''}
+                                                <span className="text-[var(--text-primary)]">{c.text}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()
                         ) : (
-                          <MarkdownRenderer content={message.response || ''} />
-                        )
-                      )}
+                          // Fallback: legacy markdown rendering
+                          message.role === 'user' ? (
+                            <div 
+                              className="font-mtg-body leading-relaxed text-[1.05rem]"
+                              dangerouslySetInnerHTML={{ 
+                                __html: processManaSymbols(message.text || '') 
+                              }} 
+                            />
+                          ) : (
+                            <MarkdownRenderer content={message.response || ''} />
+                          )
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
